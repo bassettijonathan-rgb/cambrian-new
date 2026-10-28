@@ -1,0 +1,88 @@
+<title>Cambrian Explosion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A simulation of the Cambrian explosion: soft-bodied animals evolve eyes, armour, legs and jaws in a predator-prey arms race, checked against the Burgess Shale and Chengjiang fossils.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=Figtree:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/*__CSS__*/
+</style>
+
+<div class="app" id="app">
+  <header class="masthead">
+    <ul class="stains" aria-hidden="true">
+      <li class="s-hunt">hunters</li>
+      <li class="s-dig">diggers</li>
+      <li class="s-armour">armour</li>
+      <li class="s-eye">eyes</li>
+    </ul>
+    <h1>Cambrian Explosion</h1>
+    <p>How soft animals grazing on microbial mats gave way, in some 25 million years, to a sea of eyes, shells, legs and jaws.</p>
+  </header>
+
+  <div class="bar" id="bar">
+    <button type="button" class="icon-btn play" id="play" aria-label="Play"></button>
+    <button type="button" class="icon-btn" id="step" aria-label="Step 100,000 years" title="Step 100,000 years"></button>
+    <div class="clock" aria-live="off">
+      <span class="count" id="ma">560.0</span>
+      <span class="unit" id="period">million years ago · Ediacaran</span>
+    </div>
+    <label class="speed"><span class="sr">Speed</span><select id="speed" title="Speed"></select></label>
+    <button type="button" class="icon-btn" id="restart" aria-label="Restart from 560 million years ago" title="Restart"></button>
+    <div class="timeline" id="timeline" role="slider" aria-label="Time: tap ahead to run there" aria-valuemin="0" aria-valuemax="600" aria-valuenow="0" tabindex="-1">
+      <div class="track"><div class="fill" id="tl-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <main class="main-col" id="main-col">
+      <section class="stage" id="stage" aria-label="The sea now">
+        <div class="error" id="error" role="alert" hidden></div>
+        <div class="scene-wrap" id="scene-wrap" data-view="sea">
+          <canvas id="scene" role="img" aria-label="The sea floor seen from the side, with the animals drawn from their traits"></canvas>
+          <div class="zoom"><button type="button" id="zoom-in" aria-label="Zoom in">+</button><button type="button" id="zoom-out" aria-label="Zoom out">−</button></div>
+          <button type="button" class="scene-help" id="scene-help" aria-label="How to read the picture">?</button>
+          <div class="toast" id="toast" role="status" hidden></div>
+        </div>
+        <div class="views" id="views" role="group" aria-label="Show"></div>
+        <div class="legend" id="legend"></div>
+        <p class="narrator" id="narrator"></p>
+        <div class="readouts" id="readouts"></div>
+      </section>
+    </main>
+
+    <aside class="side" id="side">
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Sections">
+        <button type="button" role="tab" data-tab="watch">Charts</button>
+        <button type="button" role="tab" data-tab="learn">Learn</button>
+        <button type="button" role="tab" data-tab="lab">Lab</button>
+        <button type="button" role="tab" data-tab="check">Validation</button>
+      </nav>
+      <section class="panel" data-panel="watch" id="panel-watch" aria-label="Charts">
+        <button type="button" class="btn ghost small" id="back-to-lesson" hidden>← Back to the lesson</button>
+        <canvas id="charts" role="img" aria-label="Charts through the run of species, disparity, the share of animals with skeletons, eyes, hunting and digging, the length of the biggest hunter, mat cover and oxygen"></canvas>
+        <p class="chart-caption" id="chart-caption"></p>
+        <h3>What happened</h3>
+        <ol class="events" id="events"></ol>
+      </section>
+      <section class="panel" data-panel="learn" id="panel-learn" aria-label="Learn"></section>
+      <section class="panel" data-panel="lab" id="panel-lab" aria-label="Lab"></section>
+      <section class="panel" data-panel="check" id="panel-check" aria-label="Validation"></section>
+    </aside>
+  </div>
+
+  <footer class="foot">
+    A teaching model, not a record of the past: 3,000 animals stand for whole oceans, twelve traits for whole bodies, sizes are squeezed in the picture and many numbers are tuned.
+    <a href="https://github.com/bassettijonathan-rgb/cambrian-new" target="_blank" rel="noopener">Code and notes</a>
+  </footer>
+</div>
+
+<div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Explanation" hidden>
+  <button type="button" class="sheet-close" id="sheet-close" aria-label="Close">×</button>
+  <div id="sheet-body"></div>
+</div>
+
+<script>
+/*__JS__*/
+</script>

@@ -1,0 +1,1608 @@
+<title>Cambrian Explosion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A simulation of the Cambrian explosion: soft-bodied animals evolve eyes, armour, legs and jaws in a predator-prey arms race, checked against the Burgess Shale and Chengjiang fossils.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,600..800&family=Figtree:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* A Cambrian sea: the page is pale stone like a slab of shale by day and
+   deep water by night; the sea floor picture keeps its own colours. Each
+   part of the story has a colour: teal species, gold skeletons, blue eyes,
+   red hunters, plum diggers, olive mats. */
+
+:root {
+  color-scheme: light;
+  --bg: #f4f1ea;
+  --paper: #fdfbf6;
+  --surface: #e9e4d8;
+  --ink: #1d2321;
+  --ink-2: #45504c;
+  --ink-3: #66706b;
+  --line: #ddd6c8;
+  --accent: #0f6f73;
+  --accent-ink: #ffffff;
+  --c-species: #0f7f80;
+  --c-armour: #9a6e0a;
+  --c-eye: #3456b8;
+  --c-hunter: #c23c2a;
+  --c-burrow: #8f4a7c;
+  --c-mat: #557527;
+  --c-oxygen: #2484b3;
+  --good: #1c7a4c;
+  --good-bg: rgba(28, 122, 76, 0.12);
+  --bad: #b2362c;
+  --bad-bg: rgba(178, 54, 44, 0.1);
+  --plot: #fdfbf6;
+  --ref: rgba(29, 35, 33, 0.08);
+  --focus: #0f6f73;
+  --field: #0f3a4d;
+  --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Archivo', 'Figtree', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --gl: max(16px, env(safe-area-inset-left, 0px));
+  --gr: max(16px, env(safe-area-inset-right, 0px));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #0b1517;
+    --paper: #111f22;
+    --surface: #18292d;
+    --ink: #e8efec;
+    --ink-2: #b2c2bd;
+    --ink-3: #849691;
+    --line: #233538;
+    --accent: #4cc9c0;
+    --accent-ink: #062224;
+    --c-species: #4cc9c0;
+    --c-armour: #e7c25a;
+    --c-eye: #8eaaff;
+    --c-hunter: #ff7a62;
+    --c-burrow: #e294cd;
+    --c-mat: #a5c96a;
+    --c-oxygen: #6cc4f0;
+    --good: #5fd096;
+    --good-bg: rgba(95, 208, 150, 0.13);
+    --bad: #f27c69;
+    --bad-bg: rgba(242, 124, 105, 0.12);
+    --plot: #0e1b1e;
+    --ref: rgba(232, 239, 236, 0.08);
+    --focus: #4cc9c0;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b1517;
+  --paper: #111f22;
+  --surface: #18292d;
+  --ink: #e8efec;
+  --ink-2: #b2c2bd;
+  --ink-3: #849691;
+  --line: #233538;
+  --accent: #4cc9c0;
+  --accent-ink: #062224;
+  --c-species: #4cc9c0;
+  --c-armour: #e7c25a;
+  --c-eye: #8eaaff;
+  --c-hunter: #ff7a62;
+  --c-burrow: #e294cd;
+  --c-mat: #a5c96a;
+  --c-oxygen: #6cc4f0;
+  --good: #5fd096;
+  --good-bg: rgba(95, 208, 150, 0.13);
+  --bad: #f27c69;
+  --bad-bg: rgba(242, 124, 105, 0.12);
+  --plot: #0e1b1e;
+  --ref: rgba(232, 239, 236, 0.08);
+  --focus: #4cc9c0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--font-body);
+  overflow-x: hidden;
+}
+
+/* paints the band above the sticky bar on phones with a notch */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--bg);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+button,
+select,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.nw {
+  white-space: nowrap;
+}
+
+sup {
+  font-size: 0.68em;
+  line-height: 0;
+  vertical-align: 0.48em;
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.app {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-block: 0 32px;
+  padding-left: var(--gl);
+  padding-right: var(--gr);
+}
+
+/* ---- masthead and the sticky bar */
+
+.masthead {
+  padding: 20px 0 10px;
+}
+
+.stains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  font: 500 11px var(--font-mono);
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.stains li::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+  vertical-align: 1px;
+}
+
+.stains .s-hunt::before {
+  color: var(--c-hunter);
+}
+.stains .s-dig::before {
+  color: var(--c-burrow);
+}
+.stains .s-armour::before {
+  color: var(--c-armour);
+}
+.stains .s-eye::before {
+  color: var(--c-eye);
+}
+
+.masthead h1 {
+  font-family: var(--font-display);
+  font-stretch: 118%;
+  font-weight: 800;
+  font-size: clamp(30px, 7.4vw, 50px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.masthead p {
+  margin: 8px 0 0;
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+
+.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 0 calc(-1 * var(--gr)) 14px calc(-1 * var(--gl));
+  padding: 8px var(--gr) 0 var(--gl);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+  flex: none;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.icon-btn.play {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+  padding: 0 15px 0 11px;
+  min-width: 92px;
+}
+
+.clock {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  padding-left: 4px;
+}
+
+.count {
+  font: 500 24px var(--font-mono);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.clock .unit {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.speed select {
+  height: 40px;
+  border-radius: 999px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  font-size: 14px;
+  cursor: pointer;
+  max-width: 118px;
+}
+
+@media (max-width: 429px) {
+  .icon-btn.play {
+    min-width: 44px;
+    padding: 0 12px;
+  }
+
+  .icon-btn.play span {
+    display: none;
+  }
+
+  .count {
+    font-size: 21px;
+  }
+
+  .speed select {
+    max-width: 100px;
+    padding: 0 6px;
+  }
+}
+
+.timeline {
+  flex: 1 1 100%;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.timeline .track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.timeline .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: linear-gradient(90deg, var(--c-mat), var(--c-hunter) 20%, var(--c-burrow) 40%, var(--c-armour) 65%, var(--c-eye) 85%, var(--c-species));
+  background-size: 100vw 100%;
+}
+
+/* ---- columns */
+
+.cols {
+  display: block;
+}
+
+.stage,
+#panel-learn,
+#panel-watch,
+#charts,
+#side {
+  scroll-margin-top: calc(env(safe-area-inset-top, 0px) + var(--bar-h, 78px) + 8px);
+}
+
+/* the sea floor picture: the same sea in every theme */
+.scene-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--field);
+  aspect-ratio: 16 / 9.5;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.scene-wrap {
+  aspect-ratio: 4 / 3;
+}
+
+.scene-wrap[data-view='plans'],
+.scene-wrap[data-view='fossils'] {
+  aspect-ratio: 1 / 1.05;
+}
+
+@media (min-width: 560px) {
+  .scene-wrap,
+  .scene-wrap[data-view='plans'],
+  .scene-wrap[data-view='fossils'] {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+@media (min-width: 1040px) {
+  .scene-wrap,
+  .scene-wrap[data-view='plans'],
+  .scene-wrap[data-view='fossils'] {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+#scene {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.scene-wrap[data-view='sea'] #scene {
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.scene-wrap[data-view='fossils'] #scene,
+.scene-wrap[data-view='plans'] #scene {
+  cursor: pointer;
+}
+
+.zoom {
+  position: absolute;
+  right: 7px;
+  top: 46px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.scene-wrap:not([data-view='sea']) .zoom {
+  display: none;
+}
+
+.zoom button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(236, 244, 240, 0.32);
+  background: rgba(8, 28, 34, 0.7);
+  color: #eef5f2;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scene-help {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(236, 244, 240, 0.32);
+  background: rgba(8, 28, 34, 0.7);
+  color: #eef5f2;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.toast {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 20px);
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(236, 234, 248, 0.92);
+  color: #14121f;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.error {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bad-bg);
+  color: var(--bad);
+  font-weight: 700;
+}
+
+.views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 6px;
+}
+
+.chip {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-2);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+.chip:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.key i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+
+.key.faint {
+  color: var(--ink-3);
+}
+
+.narrator {
+  font-size: 17px;
+  line-height: 1.45;
+  margin: 12px 0;
+  min-height: 4.4em;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+  color: var(--ink-3);
+  vertical-align: 2px;
+  margin-right: 2px;
+}
+
+.tag-predator {
+  color: var(--c-hunter);
+}
+.tag-burrow {
+  color: var(--c-burrow);
+}
+.tag-armour {
+  color: var(--c-armour);
+}
+.tag-eye {
+  color: var(--c-eye);
+}
+.tag-group {
+  color: var(--c-species);
+}
+.tag-world {
+  color: var(--c-mat);
+}
+.tag-lab {
+  color: var(--ink);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  background: none;
+  border: 0;
+  border-bottom: 1px dotted var(--ink-3);
+  padding: 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.term {
+  background: none;
+  border: 0;
+  padding: 0;
+  border-bottom: 1.5px dotted var(--accent);
+  cursor: pointer;
+  color: inherit;
+  text-align: inherit;
+}
+
+.readouts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+@media (min-width: 440px) {
+  .readouts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.readout {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  text-align: left;
+  cursor: pointer;
+}
+
+.r-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+
+.r-value {
+  font: 500 15px var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.r-unit {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.readout.flash {
+  animation: flash 1.4s ease 2;
+}
+
+@keyframes flash {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  40% {
+    box-shadow: 0 0 0 3px var(--c-hunter);
+  }
+}
+
+/* ---- tabs and panels */
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin: 24px 0 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabs button {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 10px 4px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  background: none;
+  color: var(--ink-3);
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.tabs button[aria-selected='true'] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.panel {
+  display: none;
+}
+
+.panel.active {
+  display: block;
+}
+
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-stretch: 108%;
+  letter-spacing: -0.01em;
+}
+
+.panel h2 {
+  font-size: 25px;
+  line-height: 1.15;
+  margin: 2px 0 10px;
+}
+
+.panel h3 {
+  font-size: 16.5px;
+  margin: 22px 0 8px;
+}
+
+.lede {
+  color: var(--ink-2);
+  margin: 0 0 8px;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin: 0 0 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  font-weight: 700;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: var(--accent-ink);
+}
+
+.btn.ghost {
+  background: transparent;
+}
+
+.btn.small {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ---- charts */
+
+#back-to-lesson {
+  margin: 0 0 10px;
+}
+
+#charts {
+  display: block;
+  width: 100%;
+  height: 560px;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+@media (min-width: 700px) {
+  #charts {
+    height: 620px;
+  }
+}
+
+.chart-caption {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  margin: 10px 0 8px;
+  min-height: 3em;
+}
+
+.chart-caption b {
+  color: var(--ink);
+}
+
+.events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  border-top: 1px solid var(--line);
+}
+
+.events li {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  gap: 0 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.ev-age {
+  font: 500 13px var(--font-mono);
+  color: var(--ink-2);
+  grid-row: span 2;
+  padding-top: 1px;
+}
+
+/* ---- Learn */
+
+.chapter-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.dots {
+  display: flex;
+  gap: 0;
+}
+
+.dot {
+  position: relative;
+  width: 22px;
+  height: 26px;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.dot::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-3);
+}
+
+.dot.done::before {
+  background: var(--ink-3);
+}
+
+.dot.on::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.chapter p {
+  margin: 0 0 12px;
+  max-width: 64ch;
+}
+
+.predict {
+  margin: 18px 0;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--c-hunter);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.predict .kicker {
+  color: var(--c-hunter);
+}
+
+.predict-q {
+  font-weight: 700;
+  margin: 4px 0 10px !important;
+}
+
+.options {
+  display: grid;
+  gap: 6px;
+}
+
+.option {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  text-align: left;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.option.right {
+  border-color: var(--good);
+  background: var(--good-bg);
+}
+
+.option.wrong {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+}
+
+.option.dim {
+  opacity: 0.55;
+}
+
+.option[aria-disabled='true'] {
+  cursor: default;
+}
+
+.predict-a {
+  margin: 12px 0 0 !important;
+}
+
+.show {
+  margin: 16px 0;
+}
+
+.look {
+  margin: 12px 0 0 !important;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.glossary summary {
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-stretch: 108%;
+  font-weight: 700;
+  font-size: 16.5px;
+  cursor: pointer;
+}
+
+.glossary dl {
+  margin: 0;
+}
+
+.glossary dt {
+  font-weight: 700;
+  margin-top: 12px;
+}
+
+.glossary dd {
+  margin: 2px 0 0;
+  color: var(--ink-2);
+}
+
+/* ---- Lab */
+
+.scenarios {
+  display: grid;
+  gap: 6px;
+}
+
+@media (min-width: 560px) and (max-width: 1039px) {
+  .scenarios {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.scenario,
+.inject {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  text-align: left;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.scenario span,
+.inject span {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.scenario[aria-checked='true'] {
+  border-color: var(--accent);
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+
+.seed-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.seed-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.seed-field input {
+  width: 96px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  font-family: var(--font-mono);
+}
+
+.sliders {
+  display: grid;
+  gap: 14px;
+}
+
+.slider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 8px;
+  font-size: 14.5px;
+}
+
+.slider input {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.slider output {
+  font: 500 13px var(--font-mono);
+  color: var(--ink-2);
+}
+
+.toggles {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+
+.toggle input {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+  flex: none;
+}
+
+.toggle span {
+  color: var(--ink-2);
+}
+
+.toggle b {
+  color: var(--ink);
+}
+
+.lab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.injects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+/* ---- Validation */
+
+.check-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.score {
+  font-size: 16px;
+  margin: 12px 0 4px;
+}
+
+.score b {
+  font: 800 30px var(--font-display);
+  font-stretch: 118%;
+  margin-right: 2px;
+}
+
+.check-run {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 4px 0 14px;
+}
+
+.check-run .hint {
+  margin: 0;
+}
+
+.progress {
+  flex: 1 1 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--c-species);
+}
+
+.how {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+  margin-right: 4px;
+}
+
+.how-emerges {
+  color: var(--c-eye);
+}
+.how-tuned {
+  color: var(--c-armour);
+}
+.how-built {
+  color: var(--c-burrow);
+}
+
+.how-key {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 6px 10px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.how-key dt,
+.how-key dd {
+  margin: 0;
+}
+
+.checks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.check {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.check-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.badge {
+  flex: none;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pass .badge {
+  background: var(--good-bg);
+  color: var(--good);
+}
+
+.miss .badge {
+  background: var(--bad-bg);
+  color: var(--bad);
+}
+
+.check dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px;
+  margin: 8px 0 4px;
+  font-size: 14px;
+}
+
+.check dt {
+  padding-top: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.check dd {
+  margin: 0;
+}
+
+.why {
+  margin: 8px 0 4px;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.source {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* ---- the explanation sheet */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(4, 14, 16, 0.46);
+}
+
+.sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 41;
+  transform: translateX(-50%);
+  width: min(560px, 100%);
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 18px max(18px, env(safe-area-inset-right, 0px)) calc(22px + env(safe-area-inset-bottom, 0px)) max(18px, env(safe-area-inset-left, 0px));
+  border-radius: 14px 14px 0 0;
+  background: var(--paper);
+  box-shadow: 0 -10px 34px rgba(0, 0, 0, 0.25);
+}
+
+@media (min-width: 700px) {
+  .sheet {
+    bottom: 24px;
+    border-radius: 14px;
+  }
+}
+
+.sheet h2 {
+  font-size: 22px;
+  margin: 4px 44px 6px 0;
+}
+
+.sheet p {
+  margin: 0 0 10px;
+}
+
+.sheet-value {
+  font: 500 16px var(--font-mono);
+}
+
+.portrait {
+  display: block;
+  width: 100%;
+  height: 150px;
+  margin: 4px 0 10px;
+  border-radius: 10px;
+  background: linear-gradient(#2b6f7c, #164552 78%, #6d6550 78%, #8a7c5c);
+}
+
+.traits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.traits li {
+  display: grid;
+  grid-template-columns: 76px 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.t-name {
+  font-weight: 700;
+}
+
+.t-bar {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.t-bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.t-about {
+  color: var(--ink-3);
+  font-size: 12.5px;
+  line-height: 1.3;
+}
+
+.sheet-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.foot {
+  margin-top: 36px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.foot a {
+  color: var(--ink-2);
+}
+
+/* ---- wide screens: picture and charts on the left, the rest on the right */
+
+@media (min-width: 1040px) {
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .side {
+    position: sticky;
+    top: calc(env(safe-area-inset-top, 0px) + var(--bar-h, 78px) + 10px);
+    max-height: calc(100vh - env(safe-area-inset-top, 0px) - var(--bar-h, 78px) - 20px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 6px 20px 2px;
+  }
+
+  .tabs {
+    margin-top: 0;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--bg);
+  }
+
+  .tabs [data-tab='watch'] {
+    display: none;
+  }
+
+  #panel-watch {
+    margin-top: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .readout.flash {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--c-hunter);
+  }
+}
+</style>
+
+<div class="app" id="app">
+  <header class="masthead">
+    <ul class="stains" aria-hidden="true">
+      <li class="s-hunt">hunters</li>
+      <li class="s-dig">diggers</li>
+      <li class="s-armour">armour</li>
+      <li class="s-eye">eyes</li>
+    </ul>
+    <h1>Cambrian Explosion</h1>
+    <p>How soft animals grazing on microbial mats gave way, in some 25 million years, to a sea of eyes, shells, legs and jaws.</p>
+  </header>
+
+  <div class="bar" id="bar">
+    <button type="button" class="icon-btn play" id="play" aria-label="Play"></button>
+    <button type="button" class="icon-btn" id="step" aria-label="Step 100,000 years" title="Step 100,000 years"></button>
+    <div class="clock" aria-live="off">
+      <span class="count" id="ma">560.0</span>
+      <span class="unit" id="period">million years ago · Ediacaran</span>
+    </div>
+    <label class="speed"><span class="sr">Speed</span><select id="speed" title="Speed"></select></label>
+    <button type="button" class="icon-btn" id="restart" aria-label="Restart from 560 million years ago" title="Restart"></button>
+    <div class="timeline" id="timeline" role="slider" aria-label="Time: tap ahead to run there" aria-valuemin="0" aria-valuemax="600" aria-valuenow="0" tabindex="-1">
+      <div class="track"><div class="fill" id="tl-fill"></div></div>
+    </div>
+  </div>
+
+  <div class="cols">
+    <main class="main-col" id="main-col">
+      <section class="stage" id="stage" aria-label="The sea now">
+        <div class="error" id="error" role="alert" hidden></div>
+        <div class="scene-wrap" id="scene-wrap" data-view="sea">
+          <canvas id="scene" role="img" aria-label="The sea floor seen from the side, with the animals drawn from their traits"></canvas>
+          <div class="zoom"><button type="button" id="zoom-in" aria-label="Zoom in">+</button><button type="button" id="zoom-out" aria-label="Zoom out">−</button></div>
+          <button type="button" class="scene-help" id="scene-help" aria-label="How to read the picture">?</button>
+          <div class="toast" id="toast" role="status" hidden></div>
+        </div>
+        <div class="views" id="views" role="group" aria-label="Show"></div>
+        <div class="legend" id="legend"></div>
+        <p class="narrator" id="narrator"></p>
+        <div class="readouts" id="readouts"></div>
+      </section>
+    </main>
+
+    <aside class="side" id="side">
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Sections">
+        <button type="button" role="tab" data-tab="watch">Charts</button>
+        <button type="button" role="tab" data-tab="learn">Learn</button>
+        <button type="button" role="tab" data-tab="lab">Lab</button>
+        <button type="button" role="tab" data-tab="check">Validation</button>
+      </nav>
+      <section class="panel" data-panel="watch" id="panel-watch" aria-label="Charts">
+        <button type="button" class="btn ghost small" id="back-to-lesson" hidden>← Back to the lesson</button>
+        <canvas id="charts" role="img" aria-label="Charts through the run of species, disparity, the share of animals with skeletons, eyes, hunting and digging, the length of the biggest hunter, mat cover and oxygen"></canvas>
+        <p class="chart-caption" id="chart-caption"></p>
+        <h3>What happened</h3>
+        <ol class="events" id="events"></ol>
+      </section>
+      <section class="panel" data-panel="learn" id="panel-learn" aria-label="Learn"></section>
+      <section class="panel" data-panel="lab" id="panel-lab" aria-label="Lab"></section>
+      <section class="panel" data-panel="check" id="panel-check" aria-label="Validation"></section>
+    </aside>
+  </div>
+
+  <footer class="foot">
+    A teaching model, not a record of the past: 3,000 animals stand for whole oceans, twelve traits for whole bodies, sizes are squeezed in the picture and many numbers are tuned.
+    <a href="https://github.com/bassettijonathan-rgb/cambrian-new" target="_blank" rel="noopener">Code and notes</a>
+  </footer>
+</div>
+
+<div class="sheet-backdrop" id="sheet-backdrop" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Explanation" hidden>
+  <button type="button" class="sheet-close" id="sheet-close" aria-label="Close">×</button>
+  <div id="sheet-body"></div>
+</div>
+
+<script>
+(()=>{var D={checks:[{id:"huntersFirst",title:"Hunters come before armour",model:"mobile predators by 558 Ma; skeletons spread at 532 Ma",real:"bore holes in Cloudina tubes about 550 Ma, before the small shelly fossils from 538 Ma",how:"emerges",pass:!0,source:"Bengtson & Zhao 1992; Hua et al. 2003"},{id:"armourFirst",title:"Skeletons come before sharp eyes",model:"skeletons spread at 532 Ma; eyes with lenses at 522 Ma",real:"skeletons from 550 Ma (Cloudina) and 538 Ma (small shelly fossils); the oldest eyes about 530 to 521 Ma",how:"emerges",pass:!0,source:"Kouchinsky et al. 2012; Schoenemann et al. 2017"},{id:"skelTime",title:"When skeletons spread",model:"532 Ma",real:"small shelly fossils diversify from 538 to about 525 Ma (accept 545 to 525)",how:"tuned",pass:!0,source:"Kouchinsky et al. 2012; Maloof et al. 2010"},{id:"eyeTime",title:"When eyes with lenses appear",model:"522 Ma",real:"compound eyes of trilobites and radiodonts, about 530 to 515 Ma (accept 535 to 512)",how:"emerges",pass:!0,source:"Schoenemann et al. 2017; Paterson et al. 2011"},{id:"arthropods",title:"At Burgess Shale time, arthropods are the richest group",model:"32 % of species are arthropods; the richest group is arthropods",real:"arthropods are the largest group in the Burgess Shale, about 37 % of its species",how:"tuned",pass:!0,source:"Conway Morris 1986; Caron & Jackson 2008"},{id:"disparity",title:"Body plans spread out fast",model:"disparity at 508 Ma is 4.7 times that at 550 Ma",real:"by the Burgess Shale, Cambrian arthropods alone were as varied in form as living ones (accept 2 times or more)",how:"emerges",pass:!0,source:"Briggs, Fortey & Wills 1992; Erwin et al. 2011"},{id:"mats",title:"Microbial mats give way to churned mud",model:"mats cover 90 % of the floor at 550 Ma and 55 % at 508 Ma",real:"mats cover Ediacaran sea floors; burrowers break them up through the Cambrian (accept at least 70 % before, at most 60 % after)",how:"emerges",pass:!0,source:"Seilacher 1999; Bottjer, Hagadorn & Dornbos 2000"},{id:"topPredator",title:"The biggest hunter at Burgess Shale time",model:"11 cm",real:"Anomalocaris canadensis grew to about 30 to 40 cm; most Cambrian hunters were far smaller (accept 8 to 100 cm)",how:"tuned",pass:!0,source:"Daley & Edgecombe 2014; Lerosey-Aubril & Pates 2021"},{id:"noPredators",title:"Without predators, no explosion",model:"disparity 0.44 against 0.83; skeletons on 0 % of animals, eyes on 0 %",real:"the arms-race view: predation drove armour, eyes and the spread of body plans (accept disparity below 60 % of the default, armour and eyes under 10 %)",how:"emerges",pass:!0,source:"Stanley 1973; Vermeij 1989; Bengtson 2002"},{id:"lowOxygen",title:"Low oxygen holds the explosion back",model:"at 525 Ma: disparity 0.23 against 0.53, mats 88 % against 56 %",real:"active hunting and deep burrowing need more oxygen than Ediacaran seas held (accept disparity lower and mats higher than the default)",how:"built in",pass:!0,source:"Sperling et al. 2013; Knoll & Carroll 1999"},{id:"eyesFirst",title:"If eyes had come first, the fossil order would be reversed",model:"with cheap early eyes: eyes with lenses at 535 Ma, skeletons at 534 Ma",real:"the record shows skeletons before eyes, so eyes alone did not start the arms race (Parker’s light switch, as first dated)",how:"emerges",pass:!0,source:"Parker 2003; Schoenemann et al. 2017"}],passed:11,total:11,burgess:[{id:6888,name:"Ikarachia",group:1,count:243,born:362,parent:5889,maxL:97.25242158824722,mean:[.987,.063,.226,.086,.011,.018,.982,.267,.038,.056,.008,.984]},{id:7762,name:"Selkinipod",group:8,count:168,born:404,parent:5857,maxL:8.033498202952904,mean:[.02,.853,.468,.963,.039,.028,.61,.048,.082,.158,.02,.018]},{id:8790,name:"Opacacystis",group:7,count:151,born:459,parent:7313,maxL:6.80999986584332,mean:[.021,.776,.177,.959,.033,.103,.693,.06,.028,.049,.011,.014]},{id:8206,name:"Sidgeops",group:7,count:93,born:425,parent:7313,maxL:6.958005799801196,mean:[.011,.307,.38,.92,.121,.02,.707,.055,.086,.084,.009,.024]},{id:8066,name:"Opasichoa",group:8,count:84,born:418,parent:5857,maxL:6.449222983765656,mean:[.014,.737,.488,.971,.025,.013,.622,.078,.184,.325,.006,.02]},{id:5396,name:"Sidnilus",group:4,count:73,born:296,parent:1434,maxL:7.751978777132264,mean:[.038,.295,.026,.132,.021,.014,.24,.08,.137,.606,.01,.007]},{id:7760,name:"Helmecarella",group:8,count:71,born:404,parent:5857,maxL:6.8110915245201875,mean:[.008,.775,.523,.96,.054,.053,.685,.076,.053,.214,.008,.012]},{id:6726,name:"Ottoitoxia",group:1,count:66,born:355,parent:5889,maxL:85.44779066815208,mean:[.96,.075,.163,.109,.008,.055,.988,.17,.048,.105,.022,.99]},{id:8920,name:"Hairuchoa",group:7,count:53,born:464,parent:8018,maxL:114.65624323186047,mean:[1.242,.404,.113,.41,.074,.591,.047,.185,.99,.787,.779,.041]},{id:9656,name:"Chengjia",group:4,count:49,born:501,parent:9118,maxL:32.20871578378365,mean:[.477,.379,.164,.379,.113,.941,.375,.188,.979,.669,.991,.06]},{id:9669,name:"Sidtogenia",group:8,count:49,born:502,parent:7762,maxL:6.456613311912122,mean:[.014,.857,.428,.987,.007,.088,.601,.015,.172,.74,.007,.017]},{id:8436,name:"Ikachoa",group:8,count:48,born:440,parent:6987,maxL:6.7988826775850795,mean:[.03,.887,.945,.768,.036,.024,.581,.018,.023,.328,.02,.086]}]};var Ge=.6931471805599453,lt=1.4142135623730951;function ht(s){let e=1;if(s>0)for(let t=0;t<s;t++)e*=2;else for(let t=0;t<-s;t++)e*=.5;return e}function Ae(s){if(s!==s)return NaN;if(s>709)return 1/0;if(s<-745)return 0;let e=Math.round(s/Ge),t=s-e*Ge,a=1,o=1;for(let i=1;i<18;i++)a=a*t/i,o+=a;let n=Math.trunc(e/2);return o*ht(n)*ht(e-n)}function Ce(s){if(!(s>0))return s===0?-1/0:NaN;if(s===1/0)return 1/0;let e=0,t=s;for(;t>=lt;)t*=.5,e++;for(;t<lt/2;)t*=2,e--;let a=(t-1)/(t+1),o=a*a,n=a,i=a;for(let r=3;r<40;r+=2)n*=o,i+=n/r;return 2*i+e*Ge}function ss(s){let e=String(s),t=2166136261;for(let a=0;a<e.length;a++)t^=e.charCodeAt(a),t=Math.imul(t,16777619);return t>>>0}var Pe=class{constructor(e=1){let t=ss(e);this.a=t,this.b=(t^2654435769)>>>0,this.c=(t^608135816)>>>0,this.d=1,this.spare=null;for(let a=0;a<16;a++)this.u32()}u32(){let{a:e,b:t,c:a,d:o}=this,n=(e+t|0)+o|0;return o=o+1|0,e=t^t>>>9,t=a+(a<<3)|0,a=a<<21|a>>>11,a=a+n|0,this.a=e,this.b=t,this.c=a,this.d=o,n>>>0}float(){return this.u32()/4294967296}int(e){return Math.floor(this.float()*e)}chance(e){return this.float()<e}normal(){if(this.spare!==null){let n=this.spare;return this.spare=null,n}let e,t,a;do e=2*this.float()-1,t=2*this.float()-1,a=e*e+t*t;while(a>=1||a===0);let o=Math.sqrt(-2*Ce(a)/a);return this.spare=t*o,e*o}poisson(e){if(e<=0)return 0;if(e<30){let t=Ae(-e),a=0,o=this.float();for(;o>t;)a++,o*=this.float();return a}return Math.max(0,Math.round(e+Math.sqrt(e)*this.normal()))}binomial(e,t){if(e<=0||t<=0)return 0;if(t>=1)return e;if(e<=40){let n=0;for(let i=0;i<e;i++)this.float()<t&&n++;return n}let a=e*t;if(a<20||e*(1-t)<20)return t>.5?e-this.binomial(e,1-t):Math.min(e,this.poisson(a));let o=Math.sqrt(a*(1-t));return Math.max(0,Math.min(e,Math.round(a+o*this.normal())))}geometric(e){if(e<=1)return 1;let t=1/e;return 1+Math.floor(Ce(1-this.float())/Ce(1-t))}};var ct=["size","move","seg","legs","swim","eye","armour","spines","jaws","burrow","carn","filter"],W=ct.length,x=Object.fromEntries(ct.map((s,e)=>[s,e])),Ue=[x.seg,x.legs,x.swim,x.eye,x.armour,x.spines,x.jaws,x.burrow],$={t0:560,t1:500,dt:.1,steps:600,W:240,H:70,D:6,colW:5,unit:50,lenScale:5,cols:48,N:3e3,hoxMax:10,maxSize:2.4,cambrian:538.8,cloudina:550,chengjiang:518,emu:513,burgess:508},_e=s=>Math.round(($.t0-s)/$.dt),dt=s=>$.t0-s*$.dt,le={p:.22,sd:.05,sdSize:.06,big:.015,hoxGain:.01,hoxLoss:.004},Ke={oxygen:1,minerals:1,eyeCost:1,mutation:1,mats:1,plankton:1,predators:!0,eyes:!0,burrowing:!0,armour:!0,eyesEarly:!1},mt={oxygen:{min:0,max:1.6,step:.1,label:"Oxygen rise",unit:"pct"},minerals:{min:.3,max:2,step:.1,label:"Ease of making skeletons",unit:"x"},eyeCost:{min:.2,max:3,step:.1,label:"Cost of eyes and brain",unit:"x"},mutation:{min:.3,max:3,step:.1,label:"Mutation rate",unit:"x"},mats:{min:.3,max:2,step:.1,label:"Mat growth",unit:"x"},plankton:{min:.3,max:2,step:.1,label:"Plankton",unit:"x"}},ut=["predators","eyes","burrowing","armour"],Ee={real:{label:"The Cambrian",blurb:"Oxygen and calcium rise as they did; anything can evolve.",params:{}},noPredators:{label:"No predators",blurb:"Nobody may eat another animal: a world without an arms race.",params:{predators:!1}},lowOxygen:{label:"Low oxygen",blurb:"Oxygen stays at the Ediacaran level, about an eighth of today’s.",params:{oxygen:0}},lightSwitch:{label:"Eyes first",blurb:"Parker’s light switch: animals start with eye spots and eyes are cheap.",params:{eyesEarly:!0,eyeCost:.3}},blind:{label:"A blind world",blurb:"No animal can evolve eyes.",params:{eyes:!1}},noBurrows:{label:"No burrowing",blurb:"Nothing can dig, so the mats are never broken up.",params:{burrowing:!1}}};function pt(s,e){if(e>=s[0][0])return s[0][1];for(let t=1;t<s.length;t++){let[a,o]=s[t-1],[n,i]=s[t];if(e>=n)return o+(a-e)/(a-n)*(i-o)}return s[s.length-1][1]}var as=[[560,0],[549,.05],[540,.17],[530,.3],[518,.38],[500,.4]],Le=(s,e)=>.12+e.oxygen*pt(as,s),os=[[560,2],[552,1.3],[542,1]],ft=(s,e)=>pt(os,s)/e.minerals;function gt(s="real",e={}){let t=Ee[s]??Ee.real;return{...Ke,...t.params,...e}}var H=[{key:"frond",name:"Fronds",one:"frond",like:"Charnia and Rangea",color:"#7fae6e"},{key:"tube",name:"Tube builders",one:"tube builder",like:"Cloudina",color:"#c9b48a"},{key:"polyp",name:"Polyps",one:"polyp",like:"Haootia and sea anemones",color:"#e88fb0"},{key:"soft",name:"Soft crawlers",one:"soft crawler",like:"Kimberella and Ikaria",color:"#d99a7a"},{key:"burrower",name:"Burrowing worms",one:"burrowing worm",like:"Ottoia, a priapulid",color:"#c77b9b"},{key:"shelled",name:"Shelled crawlers",one:"shelled crawler",like:"the first molluscs",color:"#e3c25a"},{key:"spiny",name:"Spiny slugs",one:"spiny slug",like:"Wiwaxia and Halkieria",color:"#e08a3c"},{key:"lobopod",name:"Lobopods",one:"lobopod",like:"Hallucigenia and Aysheaia",color:"#9a86d6"},{key:"arthropod",name:"Arthropods",one:"arthropod",like:"trilobites and Marrella",color:"#4fa3c7"},{key:"swimmer",name:"Swimmers",one:"swimmer",like:"Pikaia and Haikouichthys",color:"#5cc0a8"},{key:"radiodont",name:"Radiodonts",one:"radiodont",like:"Anomalocaris",color:"#e2574c"}],O=Object.fromEntries(H.map((s,e)=>[s.key,e]));function Ye(s,e=0){let t=a=>s[e+x[a]];return t("move")<.2?t("carn")>.5?O.polyp:t("armour")>.4?O.tube:O.frond:t("swim")>.5?t("jaws")>.45&&t("carn")>.5?O.radiodont:O.swimmer:t("legs")>.4?t("seg")>.4?O.arthropod:O.lobopod:t("burrow")>.5?O.burrower:t("armour")>.4||t("spines")>.4?t("spines")>=t("armour")?O.spiny:O.shelled:O.soft}var ns=["Ano","Hallu","Opa","Wiwa","Mar","Ayshe","Odar","Lean","Sid","Yoho","Ama","Hai","Kerry","Fuxi","Chengji","Naro","Burge","Waptia","Sanc","Ottoi","Selki","Lagga","Helme","Nekto","Kunmi","Myllo","Tamis","Stan","Spriggi","Parva","Kimbe","Ika","Cloudi","Namala","Rangi","Charni","Dickin","Tribra","Olen","Redli"],is=["","","ca","lo","ra","ge","ni","pha","to","mi","si","ru"],rs=["caris","genia","bina","xia","rella","ia","aspis","choia","nella","ella","oides","lus","chia","pod","cystis","nema","ops","ura"];function We(s,e=0){let t=(Math.imul(s+1,2654435761)^e)>>>0,a=n=>(t=Math.imul(t^t>>>15,2246822519)>>>0,t=(t^t>>>13)>>>0,n[t%n.length]),o=a(ns)+a(is)+a(rs);return o=o.replace(/([aeiou])\1+/g,"$1").replace(/([aeiou])([aeiou])([aeiou])/g,"$1$3"),o[0].toUpperCase()+o.slice(1).toLowerCase()}var ls=2.302585092994046,J=s=>Ae(s*ls),Ve=s=>s<0?0:s>1?1:s,z=$.N+64,he=8,X=Math.ceil($.W/he),yt=45,Ie=28,hs=1400,bt=3,cs=60,ds=.25,wt=.3,ms=6,us=.15,ps=.05,fs=.15,gs=1.4,ys=.25,bs=.3,ws=.1,kt=.3,Xe=[{share:.42,t:{size:1.6,move:0,filter:.9}},{share:.34,t:{size:.9,move:.4,seg:.1}},{share:.22,t:{size:.4,move:.5,burrow:.15,filter:.05}},{share:.02,t:{size:.8,move:0,carn:.7,jaws:.2}}],pe=class{constructor({seed:e="opabinia",scenario:t="real",params:a={}}={}){this.seed=String(e),this.scenario=t,this.params=gt(t,a),this.rng=new Pe(this.seed),this.step=0,this.done=!1,this.nextId=0,this.tr=new Float64Array(z*W),this.hox=new Uint8Array(z),this.x=new Float64Array(z),this.y=new Float64Array(z),this.z=new Float64Array(z),this.e=new Float64Array(z),this.sp=new Int32Array(z),this.id=new Int32Array(z),this.n=0,this.L=new Float64Array(z),this.b=new Float64Array(z),this.v=new Float64Array(z),this.R=new Float64Array(z),this.food=new Float64Array(z),this.cost=new Float64Array(z),this.dead=new Uint8Array(z),this.col=new Int32Array(z),this.binStart=new Int32Array(X+1),this.binItems=new Int32Array(z),this.mat=new Float64Array($.cols).fill(.85),this.det=new Float64Array($.cols).fill(.4),this.turb=new Float64Array($.cols),this.species=[],this.history=[],this.log=[],this.flags={},this.snapshots={},this.kills=[],this.totalKills=0,this.eyeTimes={first:null,lens:null},this.seedAnimals(),this.record()}get ma(){return dt(this.step)}newSpecies(e,t){let a={id:this.species.length,parent:t,born:this.step,died:-1,founder:this.tr.slice(e*W,e*W+W),mean:new Float64Array(W),count:0,group:Ye(this.tr,e*W),maxL:0,hox:this.hox[e]};return a.name=We(a.id),this.species.push(a),a.id}seedAnimals(){let e=this.rng,t=this.params.eyesEarly?.25:0;for(let a=0;a<Xe.length;a++){let o=Math.round(.6*$.N*Xe[a].share),n=-1;for(let i=0;i<o;i++){let r=this.n++,g=r*W;for(let w=0;w<W;w++)this.tr[g+w]=0;for(let[w,b]of Object.entries(Xe[a].t))this.tr[g+x[w]]=b;this.tr[g+x.eye]=t;for(let w=0;w<W;w++){let b=w===x.size?.1:.03,p=this.tr[g+w]+b*e.normal();this.tr[g+w]=w===x.size?Math.max(0,p):Ve(p)}a===0&&(this.tr[g+x.move]=0);let f=this.params;f.predators||(this.tr[g+x.carn]=0),f.eyes||(this.tr[g+x.eye]=0),f.burrowing||(this.tr[g+x.burrow]=0),f.armour||(this.tr[g+x.armour]=0),this.hox[r]=4,this.id[r]=this.nextId++,this.x[r]=e.float()*$.W,this.z[r]=e.float(),this.e[r]=.5+e.float(),n<0&&(n=this.newSpecies(r,-1)),this.sp[r]=n}}for(let a=0;a<this.n;a++)this.placeY(a)}placeY(e){let t=e*W,a=this.tr,o=a[t+x.move],n=a[t+x.burrow],i=a[t+x.swim];o<.2?this.y[e]=0:n>.5&&n>=i?this.y[e]=-(.15+.85*n)*$.D*(.35+.6*this.z[e]):i>.5?this.y[e]=3+($.H-14)*(.1+.9*this.z[e])*i:this.y[e]=0}derive(e,t){let{tr:a,hox:o,L:n,b:i,v:r,R:g,cost:f,n:w}=this,b=this.params,p=fs+3*e;for(let m=0;m<w;m++){let c=m*W,l=a[c+x.size],d=a[c+x.move],v=a[c+x.seg],M=a[c+x.legs],P=a[c+x.swim],E=a[c+x.eye],u=a[c+x.armour],y=a[c+x.spines],k=a[c+x.jaws],S=a[c+x.burrow],C=a[c+x.carn],A=a[c+x.filter],I=J(l);n[m]=I,i[m]=J(.5*l);let B=I/10,N=d<.2?0:d;r[m]=N*(.25+.9*M*(.4+.6*v)+1.3*P)*Math.sqrt(.3+B)*(1-.5*u*(1-.6*v)),g[m]=Math.min(60,1+B*(3+15*E*E));let V=0;for(let qe=0;qe<Ue.length;qe++)a[c+Ue[qe]]>.4&&V++;let oe=V>o[m]?.22*(V-o[m]):0,ue=(.35+.25*N+.35*M+1*P+.6*C*(.5+k)+gs*S+ys*E)*(.4+.15*l)*(1-bs*P),$e=ue>p?4*(ue-p):0;f[m]=.55+.05*N+.1*M+.28*P+.14*E*b.eyeCost+us*u*t+.08*y+.1*k+.1*S*(1+.5*l)+.03*v+ps*l*l+.04*A+oe+$e}}move(){let{tr:e,x:t,n:a,v:o,mat:n,det:i,rng:r,col:g}=this;for(let f=0;f<a;f++){let w=f*W;if(e[w+x.move]>=.2){let b=r.normal()*o[f]*2.5,p=Math.floor(t[f]/$.colW),m=e[w+x.burrow];if(e[w+x.carn]<.5&&e[w+x.swim]<.5&&r.chance(.3+.5*e[w+x.eye])){let c=(p+$.cols-1)%$.cols,l=(p+1)%$.cols,d=M=>(1-m)*n[M]+m*i[M],v=d(p);d(c)>v&&d(c)>=d(l)?b-=$.colW*(.5+.5*r.float()):d(l)>v&&(b+=$.colW*(.5+.5*r.float()))}t[f]=((t[f]+b)%$.W+$.W)%$.W}this.placeY(f),g[f]=Math.min($.cols-1,Math.floor(t[f]/$.colW))}}buildBins(){let{x:e,n:t,binStart:a,binItems:o}=this;a.fill(0);for(let i=0;i<t;i++)a[Math.min(X-1,Math.floor(e[i]/he))+1]++;for(let i=0;i<X;i++)a[i+1]+=a[i];let n=a.slice(0,X);for(let i=0;i<t;i++)o[n[Math.min(X-1,Math.floor(e[i]/he))]++]=i}killChance(e,t){let{tr:a,L:o,v:n,R:i,y:r}=this,g=e*W,f=t*W,w=Math.min(1,wt+(1-wt)*3*o[t]/o[e]);r[t]<0?w*=1-.85*a[f+x.burrow]*(1-a[g+x.burrow]):r[t]>1&&a[g+x.swim]<.5&&(w*=.25);let b=a[g+x.jaws];if(o[t]*(1+1.5*a[f+x.spines])>o[e]*(.5+.7*b))return 0;let m=i[t]/(i[t]+i[e]),c=a[f+x.move]<.2?0:Math.min(1,1.3*n[t]/(n[t]+n[e]+.02)),l=o[e]/o[t]-1,d=.25+1.75*b+.4*(l<0?0:l>2?2:l),v=.25+ms*a[f+x.armour]*(1-.5*b);return w*(1-m*c)*(d/(d+v))}hunt(){let{tr:e,n:t,rng:a,x:o,y:n,b:i,R:r,food:g,dead:f,binStart:w,binItems:b}=this;if(this.kills=[],!this.params.predators)return;let p=new Float64Array(X);for(let c=0;c<t;c++)p[Math.min(X-1,Math.floor(o[c]/he))]+=e[c*W+x.carn];let m=[];for(let c=0;c<t;c++)e[c*W+x.carn]>.05&&m.push(c);Mt(m,a);for(let c of m){if(f[c])continue;let l=e[c*W+x.carn],d=2.2*i[c],v=0,M=Math.floor(6*l)+(a.chance(6*l-Math.floor(6*l))?1:0),P=1,E=r[c],u=Math.max(1,Math.ceil(E/he));for(let y=0;y<M&&v<d&&P>0;y++){let k=-1,S=0,C=0;for(let I=0;I<12;I++){let B=((Math.floor(o[c]/he)+a.int(2*u+1)-u)%X+X)%X,N=w[B],V=a.int(cs);if(V>=w[B+1]-N)continue;let oe=b[N+V];if(oe===c||f[oe])continue;let we=Math.abs(o[oe]-o[c]);if(we>$.W/2&&(we=$.W-we),we>E)continue;let ue=this.killChance(c,oe);if(ue<=0)continue;let $e=ue*Math.min(bt*i[oe],d-v);$e>S&&(S=$e,k=oe,C=ue)}if(k<0)continue;let A=p[Math.min(X-1,Math.floor(o[c]/he))]-l;if(a.chance(C/(1+ds*Math.max(0,A)))){f[k]=2;let I=bt*i[k],B=Math.min(I,d-v);v+=B,this.det[this.col[k]]+=.3*(I-B)/Ie,this.kills.push([this.id[c],this.id[k],o[k],n[k]]),o[c]=o[k],P-=.1+i[k]/i[c]}}g[c]+=v}this.totalKills+=this.kills.length}feed(){let{tr:e,n:t,b:a,food:o,dead:n,col:i,mat:r,det:g}=this,f=this.params,w=new Float64Array($.cols),b=new Float64Array($.cols),p=0,m=new Float64Array(t),c=new Float64Array(t),l=new Float64Array(t);for(let u=0;u<t;u++){if(n[u])continue;let y=u*W,k=2.2*a[u]*(1-e[y+x.carn]),S=e[y+x.filter],C=e[y+x.burrow],A=e[y+x.move]>=.2,I=1+.3*e[y+x.legs]*(.5+.5*e[y+x.seg]);m[u]=k*(1-S)*(1-C)*(A?I:.15)*(this.y[u]>1?.15:1),c[u]=k*(1-S)*C*I,l[u]=k*S,w[i[u]]+=m[u],b[i[u]]+=c[u],p+=l[u]}let d=hs*f.plankton,v=p>d?d/p:1,M=new Float64Array($.cols),P=new Float64Array($.cols);for(let u=0;u<t;u++){if(n[u])continue;let y=u*W,k=i[u],S=r[k]*yt,C=g[k]*Ie,A=m[u]*(w[k]>S?S/w[k]:1),I=c[u]*(b[k]>C?C/b[k]:1),B=e[y+x.move]>=.2?1:0,N=.5+.5*(1-B)-.35*e[y+x.swim];B||(N*=1-(1-e[y+x.armour])*(1-r[k])),o[u]+=A+I+l[u]*v*N,M[k]+=A,P[k]+=I}let E=new Float64Array($.cols);for(let u=0;u<t;u++){if(n[u])continue;let y=e[u*W+x.burrow];y>.35&&(E[i[u]]+=(y-.35)*Math.sqrt(this.L[u]/10))}for(let u=0;u<$.cols;u++){this.turb[u]=.8*this.turb[u]+.2*(E[u]/3);let y=Math.max(.04,1-.95*Math.min(1,this.turb[u])),k=r[u]-.12*M[u]/yt;k+=1.3*f.mats*k*(y-k)+.003,r[u]=Math.max(0,Math.min(1,k));let S=g[u]-P[u]/Ie+.12*r[u]+.04;g[u]=Math.max(0,Math.min(3,S*.92))}}turnover(){let{tr:e,n:t,rng:a,food:o,b:n,cost:i,dead:r,e:g}=this,f=this.params;for(let p=0;p<t;p++){if(r[p])continue;let m=vt(e[p*W+x.size]);g[p]=Math.min(2*m,g[p]+o[p]/n[p]-i[p]),(g[p]<-1||a.chance(ws*J(-.25*e[p*W+x.size])))&&(r[p]=1,this.det[this.col[p]]+=.5*n[p]/Ie)}let w=0;for(let p=0;p<t;p++)r[p]||(w!==p&&this.copy(p,w),w++);this.n=w;let b=[];for(let p=0;p<w;p++)b.push(p);Mt(b,a);for(let p of b){let m=vt(e[p*W+x.size]),c=0;for(;g[p]>=m&&c<2&&this.n<$.N;)g[p]-=m,this.birth(p,f),c++}this.clearScratch()}clearScratch(){this.dead.fill(0,0,this.n),this.food.fill(0,0,this.n)}copy(e,t){this.tr.copyWithin(t*W,e*W,e*W+W),this.hox[t]=this.hox[e],this.x[t]=this.x[e],this.y[t]=this.y[e],this.z[t]=this.z[e],this.e[t]=this.e[e],this.sp[t]=this.sp[e],this.id[t]=this.id[e],this.col[t]=this.col[e],this.L[t]=this.L[e],this.b[t]=this.b[e]}birth(e,t){let a=this.rng,o=this.n++,n=o*W,i=e*W,r=this.tr,g=t.mutation;for(let p=0;p<W;p++){let m=r[i+p];if(a.chance(le.p*g)){let c=(p===x.size?le.sdSize:le.sd)*(a.chance(le.big)?5:1);m+=c*a.normal()}r[n+p]=p===x.size?Math.min($.maxSize,Math.max(0,m)):Ve(m)}t.predators||(r[n+x.carn]=0),t.eyes||(r[n+x.eye]=0),t.burrowing||(r[n+x.burrow]=0),t.armour||(r[n+x.armour]=0);let f=this.hox[e];a.chance(le.hoxGain*g)&&f<$.hoxMax?f++:a.chance(le.hoxLoss*g)&&f>1&&f--,this.hox[o]=f,this.x[o]=((this.x[e]+a.normal()*3)%$.W+$.W)%$.W,this.z[o]=Ve(this.z[e]+.15*a.normal()),this.e[o]=.3,this.id[o]=this.nextId++,this.dead[o]=0,this.food[o]=0,this.col[o]=Math.min($.cols-1,Math.floor(this.x[o]/$.colW)),this.L[o]=J(r[n+x.size]),this.b[o]=J(.5*r[n+x.size]);let w=this.species[this.sp[e]],b=0;for(let p=0;p<W;p++){let m=p===x.size?.3333333333333333:1,c=(r[n+p]-w.founder[p])*m;b+=c*c}this.sp[o]=b>kt*kt?this.newSpecies(o,w.id):w.id,this.placeY(o)}run(e=1){for(let t=0;t<e&&!this.done;t++)this.tick()}tick(){let e=this.ma,t=Le(e,this.params),a=ft(e,this.params);this.derive(t,a),this.move(),this.buildBins(),this.hunt(),this.feed(),this.turnover(),this.step++,this.step>=$.steps&&(this.done=!0),this.record()}record(){let{tr:e,n:t,sp:a,species:o}=this,n=this.ma;for(let y of o)y.died>=0||(y.count=0,y.mean.fill(0),y.maxL=0);let i=0,r=0,g=0,f=0,w=0,b=0,p=0,m=0,c=new Array(H.length).fill(0);for(let y=0;y<t;y++){let k=y*W,S=o[a[y]];S.count++;for(let A=0;A<W;A++)S.mean[A]+=e[k+A];let C=$.lenScale*J(e[k+x.size]);C>S.maxL&&(S.maxL=C),C>p&&(p=C),m+=e[k+x.size],e[k+x.eye]>.3&&i++,e[k+x.eye]>.7&&r++,e[k+x.armour]>.5&&g++,e[k+x.burrow]>.5&&w++,e[k+x.carn]>.5&&e[k+x.move]>=.2&&(f++,C>b&&(b=C))}let l=[],d=new Array(H.length).fill(0);for(let y of o)if(!(y.died>=0)){if(y.count===0){y.died=this.step;continue}for(let k=0;k<W;k++)y.mean[k]/=y.count;y.group=Ye(y.mean),l.push(y),d[y.group]++,c[y.group]+=y.count}let v=0;if(l.length>1)for(let y=0;y<W;y++){let k=y===x.size?.3333333333333333:1,S=0;for(let A of l)S+=A.mean[y]*k;S/=l.length;let C=0;for(let A of l)C+=(A.mean[y]*k-S)**2;v+=C/(l.length-1)}let M=0;for(let y=0;y<$.cols;y++)M+=this.mat[y];let P=0;for(let y=0;y<t;y++)P+=this.hox[y];let E=d.filter(y=>y>0).length,u={step:this.step,ma:n,n:t,species:l.length,groups:d,indiv:c,nGroups:E,disparity:v,eyes:t?i/t:0,lens:t?r/t:0,armour:t?g/t:0,carn:t?f/t:0,burrow:t?w/t:0,maxL:p,bigPred:b,meanL:t?$.lenScale*J(m/t):0,mat:M/$.cols,o2:Le(n,this.params),kills:this.kills.length,hox:t?P/t:0,originations:o.filter(y=>y.born===this.step&&this.step>0).length};this.history.push(u),this.notice(u,l)}note(e,t,a={}){this.log.push({step:this.step,ma:this.ma,kind:e,text:t,...a})}notice(e,t){let a=this.flags,o=(i,r,g,f,w)=>{!a[i]&&r&&(a[i]=!0,this.note(g,f,{key:i,...w}))},n=i=>i>=100?`${Math.round(i/10)} cm`:i>=10?`${(i/10).toFixed(1)} cm`:`${i.toFixed(1)} mm`;o("pred",e.carn>=.02,"predator",`Animals start eating animals. The biggest hunter is ${n(e.bigPred)} long.`),o("burrow",e.burrow>=.03,"burrow","Animals dig into the sediment, out of reach and onto buried food."),o("skel",e.armour>=.03,"armour","Mineral skeletons: shells and plates spread among the animals."),o("eye1",e.eyes>=.03,"eye","Eyes: cups of light-sensitive cells let animals tell where light and shadow come from."),o("eye2",e.lens>=.03,"eye","Eyes with lenses: animals now see shapes, at a distance."),o("pred1",e.carn>=.02&&e.bigPred>=10,"predator","A predator reaches 1 cm."),o("pred10",e.carn>=.02&&e.bigPred>=100,"predator","A predator reaches 10 cm, a giant among the small animals around it."),o("mats",e.mat<.5&&this.step>10,"world","The microbial mats cover less than half of the sea floor: burrowers are churning them up."),o("cambrian",e.ma<=$.cambrian,"date","The Cambrian begins (538.8 million years ago), marked in the rocks by the first Treptichnus burrows.");for(let i=0;i<H.length;i++){if(i===O.frond||i===O.soft||i===O.polyp)continue;let r=H[i],g=t.find(f=>f.group===i&&f.count>=8);o(`g-${r.key}`,!!g,"group",`First ${r.name.toLowerCase()} (like ${r.like}): ${g?g.name:""}.`,{group:i,species:g?g.id:-1})}e.indiv[O.frond]>.2*e.n&&(a.frondsMany=!0),o("frondsGone",a.frondsMany&&e.indiv[O.frond]<.01*e.n,"group","The Ediacaran fronds are gone: eaten, out-competed and smothered."),this.eyeTimes.first===null&&e.eyes>=.03&&(this.eyeTimes.first=e.ma),this.eyeTimes.lens===null&&e.lens>=.03&&(this.eyeTimes.lens=e.ma);for(let[i,r]of[["chengjiang",$.chengjiang],["burgess",$.burgess]])!this.snapshots[i]&&e.ma<=r+1e-9&&(this.snapshots[i]=this.fauna(t))}fauna(e=this.species.filter(t=>t.died<0&&t.count>0)){return e.filter(t=>t.count>=3).sort((t,a)=>a.count-t.count).map(t=>({id:t.id,name:t.name,group:t.group,count:t.count,born:t.born,parent:t.parent,maxL:t.maxL,mean:Array.from(t.mean,a=>Math.round(a*1e3)/1e3)}))}frame(){let{n:e,tr:t}=this,a=18,o=new Float32Array(e*a);for(let n=0;n<e;n++){let i=n*W,r=n*a;o[r]=this.id[n],o[r+1]=this.x[n],o[r+2]=this.y[n],o[r+3]=this.z[n],o[r+4]=this.species[this.sp[n]].group,o[r+5]=this.sp[n];for(let g=0;g<W;g++)o[r+6+g]=t[i+g]}return{step:this.step,ma:this.ma,n:e,F:a,agents:o,mat:Float32Array.from(this.mat),turb:Float32Array.from(this.turb),kills:this.kills.slice(0,60),o2:Le(this.ma,this.params),fauna:this.fauna().slice(0,40)}}geometry(){return{W:$.W,H:$.H,D:$.D,cols:$.cols,colW:$.colW,steps:$.steps,t0:$.t0,t1:$.t1,dt:$.dt}}setParams(e){this.params={...this.params,...e}}inject(e){let t=this.rng;if(e==="predator"){let a=-1;for(let o=0;o<8&&this.n<z;o++){let n=this.n++,i=n*W,r={size:2,move:.9,seg:.6,swim:.9,eye:.85,jaws:.9,carn:.95,legs:.1,armour:.1};for(let g=0;g<W;g++)this.tr[i+g]=0;for(let[g,f]of Object.entries(r))this.tr[i+x[g]]=f;this.hox[n]=6,this.x[n]=t.float()*$.W,this.z[n]=t.float(),this.e[n]=2,this.id[n]=this.nextId++,a<0&&(a=this.newSpecies(n,-1)),this.sp[n]=a,this.L[n]=J(2),this.b[n]=J(1),this.placeY(n)}this.note("lab","You released eight big, sharp-eyed swimming predators.")}else if(e==="extinction"){let a=0;for(let o=0;o<this.n;o++)t.chance(.7)||(a!==o&&this.copy(o,a),a++);this.n=a,this.note("lab","You struck: seven in ten animals died at random, a mass extinction.")}else if(e==="blind"){for(let a=0;a<this.n;a++)this.tr[a*W+x.eye]=0;this.note("lab","You took every animal’s eyes away.")}this.history.pop(),this.record()}},vt=s=>.6*J(.25*s);function Mt(s,e){for(let t=s.length-1;t>0;t--){let a=e.int(t+1),o=s[t];s[t]=s[a],s[a]=o}return s}var xt=[2,6,20,1e3];function Tt(s){let e=null,t=null,a=!1,o=1,n=null,i=0,r=0,g=()=>{let p=e.history,m=p.slice(i);i=p.length;let c=e.log.slice(r);r=e.log.length,s({type:"tick",frame:e.frame(),points:m,notes:c,params:e.params,running:a,done:e.done,snapshots:e.done?e.snapshots:null,eyeTimes:e.eyeTimes})},f=()=>{a=!1,n=null,t&&clearTimeout(t),t=null},w=()=>{if(t=null,!a)return;let p=xt[o]??xt[1],m=30,c=Date.now(),l=Math.max(1,Math.round(p/20)),d=0;for(;!e.done&&(d<l||p>=1e3&&Date.now()-c<m)&&!(n!==null&&e.step>=n||(e.run(1),d++,Date.now()-c>m*2)););let v=n!==null&&e.step>=n;(e.done||v)&&(a=!1,n=null),g();let M=p>=1e3?0:Math.max(0,1e3*Math.max(d,1)/p-(Date.now()-c));a?t=setTimeout(w,M):s({type:"paused",step:e.step,done:e.done})},b=()=>{e.done||(a=!0,t||(t=setTimeout(w,0)))};return function(m){try{switch(m.type){case"init":{f(),e=new pe({seed:m.seed,scenario:m.scenario,params:m.params??{}}),i=0,r=0,s({type:"ready",geometry:e.geometry(),seed:e.seed,scenario:e.scenario,scenarios:Ee,defaults:Ke,ranges:mt,toggles:ut,steps:$.steps,dates:{cambrian:$.cambrian,cloudina:$.cloudina,chengjiang:$.chengjiang,emu:$.emu,burgess:$.burgess}}),g();break}case"play":if(!e)break;typeof m.speed=="number"&&(o=m.speed),n=null,b();break;case"speed":o=m.speed;break;case"pause":f(),e&&s({type:"paused",step:e.step,done:e.done});break;case"runTo":if(!e)break;if(typeof m.speed=="number"&&(o=m.speed),e.step>=m.step){f(),s({type:"paused",step:e.step,done:e.done});break}n=m.step,b();break;case"step":if(!e)break;f(),e.run(m.n??1),g(),s({type:"paused",step:e.step,done:e.done});break;case"inject":if(!e)break;e.inject(m.kind),g();break;case"set":if(!e)break;e.setParams(m.patch),g();break;default:break}}catch(c){f(),s({type:"error",message:String(c&&c.stack?c.stack:c)})}}}var ks=()=>new Promise(s=>setTimeout(s,0)),de="opabinia",Re=["real","noPredators","lowOxygen","lightSwitch"];function vs(s){let e={};for(let t of s.log)t.key&&e[t.key]===void 0&&(e[t.key]=t.ma);return{history:s.history,first:e,burgess:s.snapshots.burgess??null}}async function Je(s,{seed:e=de}={}){let t=Re.length*$.steps,a={},o=Date.now();for(let n=0;n<Re.length;n++){let i=new pe({seed:e,scenario:Re[n]});for(;!i.done;)i.run(1),Date.now()-o>40&&(s&&s({step:n*$.steps+i.step,total:t}),await ks(),o=Date.now());a[Re[n]]=vs(i)}return Qe(a.real,{noPredators:a.noPredators,lowOxygen:a.lowOxygen,lightSwitch:a.lightSwitch})}var ne=s=>s===void 0||s<0?"never":`${s.toFixed(0)} Ma`,Ms=s=>s>=100?`${Math.round(s/10)} cm`:`${(s/10).toFixed(1)} cm`,ce=s=>`${Math.round(s*100)} %`,fe=(s,e)=>s.history[Math.min(s.history.length-1,_e(e))];function Qe(s,e=null){let t=s.first,a=fe(s,$.burgess),o=fe(s,550),n=fe(s,545),i=[],r=m=>i.push(m),g=(m,c)=>m!==void 0&&(c===void 0||m>c);r({id:"huntersFirst",title:"Hunters come before armour",model:`mobile predators by ${ne(t.pred)}; skeletons spread at ${ne(t.skel)}`,real:"bore holes in Cloudina tubes about 550 Ma, before the small shelly fossils from 538 Ma",how:"emerges",pass:g(t.pred,t.skel),source:"Bengtson & Zhao 1992; Hua et al. 2003"}),r({id:"armourFirst",title:"Skeletons come before sharp eyes",model:`skeletons spread at ${ne(t.skel)}; eyes with lenses at ${ne(t.eye2)}`,real:"skeletons from 550 Ma (Cloudina) and 538 Ma (small shelly fossils); the oldest eyes about 530 to 521 Ma",how:"emerges",pass:g(t.skel,t.eye2),source:"Kouchinsky et al. 2012; Schoenemann et al. 2017"}),r({id:"skelTime",title:"When skeletons spread",model:ne(t.skel),real:"small shelly fossils diversify from 538 to about 525 Ma (accept 545 to 525)",how:"tuned",pass:t.skel!==void 0&&t.skel<=545&&t.skel>=525,source:"Kouchinsky et al. 2012; Maloof et al. 2010"}),r({id:"eyeTime",title:"When eyes with lenses appear",model:ne(t.eye2),real:"compound eyes of trilobites and radiodonts, about 530 to 515 Ma (accept 535 to 512)",how:"emerges",pass:t.eye2!==void 0&&t.eye2<=535&&t.eye2>=512,source:"Schoenemann et al. 2017; Paterson et al. 2011"});let f=a?a.groups[O.arthropod]/Math.max(1,a.species):0,w=a?a.groups.indexOf(Math.max(...a.groups)):-1;r({id:"arthropods",title:"At Burgess Shale time, arthropods are the richest group",model:`${ce(f)} of species are arthropods; the richest group is ${w>=0?H[w].name.toLowerCase():"–"}`,real:"arthropods are the largest group in the Burgess Shale, about 37 % of its species",how:"tuned",pass:w===O.arthropod,source:"Conway Morris 1986; Caron & Jackson 2008"});let b=a.disparity/Math.max(1e-9,o.disparity);if(r({id:"disparity",title:"Body plans spread out fast",model:`disparity at 508 Ma is ${b.toFixed(1)} times that at 550 Ma`,real:"by the Burgess Shale, Cambrian arthropods alone were as varied in form as living ones (accept 2 times or more)",how:"emerges",pass:b>=2,source:"Briggs, Fortey & Wills 1992; Erwin et al. 2011"}),r({id:"mats",title:"Microbial mats give way to churned mud",model:`mats cover ${ce(o.mat)} of the floor at 550 Ma and ${ce(a.mat)} at 508 Ma`,real:"mats cover Ediacaran sea floors; burrowers break them up through the Cambrian (accept at least 70 % before, at most 60 % after)",how:"emerges",pass:o.mat>=.7&&a.mat<=.6,source:"Seilacher 1999; Bottjer, Hagadorn & Dornbos 2000"}),r({id:"topPredator",title:"The biggest hunter at Burgess Shale time",model:Ms(a.bigPred),real:"Anomalocaris canadensis grew to about 30 to 40 cm; most Cambrian hunters were far smaller (accept 8 to 100 cm)",how:"tuned",pass:a.bigPred>=80&&a.bigPred<=1e3,source:"Daley & Edgecombe 2014; Lerosey-Aubril & Pates 2021"}),e){let m=fe(e.noPredators,$.burgess);r({id:"noPredators",title:"Without predators, no explosion",model:`disparity ${m.disparity.toFixed(2)} against ${a.disparity.toFixed(2)}; skeletons on ${ce(m.armour)} of animals, eyes on ${ce(m.eyes)}`,real:"the arms-race view: predation drove armour, eyes and the spread of body plans (accept disparity below 60 % of the default, armour and eyes under 10 %)",how:"emerges",pass:m.disparity<.6*a.disparity&&m.armour<.1&&m.eyes<.1,source:"Stanley 1973; Vermeij 1989; Bengtson 2002"});let c=fe(e.lowOxygen,525),l=fe(s,525);r({id:"lowOxygen",title:"Low oxygen holds the explosion back",model:`at 525 Ma: disparity ${c.disparity.toFixed(2)} against ${l.disparity.toFixed(2)}, mats ${ce(c.mat)} against ${ce(l.mat)}`,real:"active hunting and deep burrowing need more oxygen than Ediacaran seas held (accept disparity lower and mats higher than the default)",how:"built in",pass:c.disparity<l.disparity&&c.mat>l.mat,source:"Sperling et al. 2013; Knoll & Carroll 1999"});let d=e.lightSwitch.first;r({id:"eyesFirst",title:"If eyes had come first, the fossil order would be reversed",model:`with cheap early eyes: eyes with lenses at ${ne(d.eye2)}, skeletons at ${ne(d.skel)}`,real:"the record shows skeletons before eyes, so eyes alone did not start the arms race (Parker’s light switch, as first dated)",how:"emerges",pass:g(d.eye2,d.skel),source:"Parker 2003; Schoenemann et al. 2017"})}let p=i.filter(m=>m.pass).length;return{checks:i,passed:p,total:i.length,burgess:s.burgess?s.burgess.slice(0,12):null}}var St='(()=>{var ot=.6931471805599453,ht=1.4142135623730951;function ut(r){let t=1;if(r>0)for(let e=0;e<r;e++)t*=2;else for(let e=0;e<-r;e++)t*=.5;return t}function _(r){if(r!==r)return NaN;if(r>709)return 1/0;if(r<-745)return 0;let t=Math.round(r/ot),e=r-t*ot,s=1,o=1;for(let i=1;i<18;i++)s=s*e/i,o+=s;let n=Math.trunc(t/2);return o*ut(n)*ut(t-n)}function Q(r){if(!(r>0))return r===0?-1/0:NaN;if(r===1/0)return 1/0;let t=0,e=r;for(;e>=ht;)e*=.5,t++;for(;e<ht/2;)e*=2,t--;let s=(e-1)/(e+1),o=s*s,n=s,i=s;for(let l=3;l<40;l+=2)n*=o,i+=n/l;return 2*i+t*ot}function Et(r){let t=String(r),e=2166136261;for(let s=0;s<t.length;s++)e^=t.charCodeAt(s),e=Math.imul(e,16777619);return e>>>0}var J=class{constructor(t=1){let e=Et(t);this.a=e,this.b=(e^2654435769)>>>0,this.c=(e^608135816)>>>0,this.d=1,this.spare=null;for(let s=0;s<16;s++)this.u32()}u32(){let{a:t,b:e,c:s,d:o}=this,n=(t+e|0)+o|0;return o=o+1|0,t=e^e>>>9,e=s+(s<<3)|0,s=s<<21|s>>>11,s=s+n|0,this.a=t,this.b=e,this.c=s,this.d=o,n>>>0}float(){return this.u32()/4294967296}int(t){return Math.floor(this.float()*t)}chance(t){return this.float()<t}normal(){if(this.spare!==null){let n=this.spare;return this.spare=null,n}let t,e,s;do t=2*this.float()-1,e=2*this.float()-1,s=t*t+e*e;while(s>=1||s===0);let o=Math.sqrt(-2*Q(s)/s);return this.spare=e*o,t*o}poisson(t){if(t<=0)return 0;if(t<30){let e=_(-t),s=0,o=this.float();for(;o>e;)s++,o*=this.float();return s}return Math.max(0,Math.round(t+Math.sqrt(t)*this.normal()))}binomial(t,e){if(t<=0||e<=0)return 0;if(e>=1)return t;if(t<=40){let n=0;for(let i=0;i<t;i++)this.float()<e&&n++;return n}let s=t*e;if(s<20||t*(1-e)<20)return e>.5?t-this.binomial(t,1-e):Math.min(t,this.poisson(s));let o=Math.sqrt(s*(1-e));return Math.max(0,Math.min(t,Math.round(s+o*this.normal())))}geometric(t){if(t<=1)return 1;let e=1/t;return 1+Math.floor(Q(1-this.float())/Q(1-e))}};var dt=["size","move","seg","legs","swim","eye","armour","spines","jaws","burrow","carn","filter"],w=dt.length,a=Object.fromEntries(dt.map((r,t)=>[r,t])),rt=[a.seg,a.legs,a.swim,a.eye,a.armour,a.spines,a.jaws,a.burrow],d={t0:560,t1:500,dt:.1,steps:600,W:240,H:70,D:6,colW:5,unit:50,lenScale:5,cols:48,N:3e3,hoxMax:10,maxSize:2.4,cambrian:538.8,cloudina:550,chengjiang:518,emu:513,burgess:508},nt=r=>Math.round((d.t0-r)/d.dt),mt=r=>d.t0-r*d.dt,B={p:.22,sd:.05,sdSize:.06,big:.015,hoxGain:.01,hoxLoss:.004},it={oxygen:1,minerals:1,eyeCost:1,mutation:1,mats:1,plankton:1,predators:!0,eyes:!0,burrowing:!0,armour:!0,eyesEarly:!1},ft={oxygen:{min:0,max:1.6,step:.1,label:"Oxygen rise",unit:"pct"},minerals:{min:.3,max:2,step:.1,label:"Ease of making skeletons",unit:"x"},eyeCost:{min:.2,max:3,step:.1,label:"Cost of eyes and brain",unit:"x"},mutation:{min:.3,max:3,step:.1,label:"Mutation rate",unit:"x"},mats:{min:.3,max:2,step:.1,label:"Mat growth",unit:"x"},plankton:{min:.3,max:2,step:.1,label:"Plankton",unit:"x"}},pt=["predators","eyes","burrowing","armour"],Z={real:{label:"The Cambrian",blurb:"Oxygen and calcium rise as they did; anything can evolve.",params:{}},noPredators:{label:"No predators",blurb:"Nobody may eat another animal: a world without an arms race.",params:{predators:!1}},lowOxygen:{label:"Low oxygen",blurb:"Oxygen stays at the Ediacaran level, about an eighth of today’s.",params:{oxygen:0}},lightSwitch:{label:"Eyes first",blurb:"Parker’s light switch: animals start with eye spots and eyes are cheap.",params:{eyesEarly:!0,eyeCost:.3}},blind:{label:"A blind world",blurb:"No animal can evolve eyes.",params:{eyes:!1}},noBurrows:{label:"No burrowing",blurb:"Nothing can dig, so the mats are never broken up.",params:{burrowing:!1}}};function yt(r,t){if(t>=r[0][0])return r[0][1];for(let e=1;e<r.length;e++){let[s,o]=r[e-1],[n,i]=r[e];if(t>=n)return o+(s-t)/(s-n)*(i-o)}return r[r.length-1][1]}var Pt=[[560,0],[549,.05],[540,.17],[530,.3],[518,.38],[500,.4]],X=(r,t)=>.12+t.oxygen*yt(Pt,r),zt=[[560,2],[552,1.3],[542,1]],gt=(r,t)=>yt(zt,r)/t.minerals;function bt(r="real",t={}){let e=Z[r]??Z.real;return{...it,...e.params,...t}}var R=[{key:"frond",name:"Fronds",one:"frond",like:"Charnia and Rangea",color:"#7fae6e"},{key:"tube",name:"Tube builders",one:"tube builder",like:"Cloudina",color:"#c9b48a"},{key:"polyp",name:"Polyps",one:"polyp",like:"Haootia and sea anemones",color:"#e88fb0"},{key:"soft",name:"Soft crawlers",one:"soft crawler",like:"Kimberella and Ikaria",color:"#d99a7a"},{key:"burrower",name:"Burrowing worms",one:"burrowing worm",like:"Ottoia, a priapulid",color:"#c77b9b"},{key:"shelled",name:"Shelled crawlers",one:"shelled crawler",like:"the first molluscs",color:"#e3c25a"},{key:"spiny",name:"Spiny slugs",one:"spiny slug",like:"Wiwaxia and Halkieria",color:"#e08a3c"},{key:"lobopod",name:"Lobopods",one:"lobopod",like:"Hallucigenia and Aysheaia",color:"#9a86d6"},{key:"arthropod",name:"Arthropods",one:"arthropod",like:"trilobites and Marrella",color:"#4fa3c7"},{key:"swimmer",name:"Swimmers",one:"swimmer",like:"Pikaia and Haikouichthys",color:"#5cc0a8"},{key:"radiodont",name:"Radiodonts",one:"radiodont",like:"Anomalocaris",color:"#e2574c"}],F=Object.fromEntries(R.map((r,t)=>[r.key,t]));function at(r,t=0){let e=s=>r[t+a[s]];return e("move")<.2?e("carn")>.5?F.polyp:e("armour")>.4?F.tube:F.frond:e("swim")>.5?e("jaws")>.45&&e("carn")>.5?F.radiodont:F.swimmer:e("legs")>.4?e("seg")>.4?F.arthropod:F.lobopod:e("burrow")>.5?F.burrower:e("armour")>.4||e("spines")>.4?e("spines")>=e("armour")?F.spiny:F.shelled:F.soft}var Ot=["Ano","Hallu","Opa","Wiwa","Mar","Ayshe","Odar","Lean","Sid","Yoho","Ama","Hai","Kerry","Fuxi","Chengji","Naro","Burge","Waptia","Sanc","Ottoi","Selki","Lagga","Helme","Nekto","Kunmi","Myllo","Tamis","Stan","Spriggi","Parva","Kimbe","Ika","Cloudi","Namala","Rangi","Charni","Dickin","Tribra","Olen","Redli"],Ct=["","","ca","lo","ra","ge","ni","pha","to","mi","si","ru"],It=["caris","genia","bina","xia","rella","ia","aspis","choia","nella","ella","oides","lus","chia","pod","cystis","nema","ops","ura"];function wt(r,t=0){let e=(Math.imul(r+1,2654435761)^t)>>>0,s=n=>(e=Math.imul(e^e>>>15,2246822519)>>>0,e=(e^e>>>13)>>>0,n[e%n.length]),o=s(Ot)+s(Ct)+s(It);return o=o.replace(/([aeiou])\\1+/g,"$1").replace(/([aeiou])([aeiou])([aeiou])/g,"$1$3"),o[0].toUpperCase()+o.slice(1).toLowerCase()}var $t=2.302585092994046,$=r=>_(r*$t),lt=r=>r<0?0:r>1?1:r,T=d.N+64,j=8,I=Math.ceil(d.W/j),xt=45,tt=28,Nt=1400,kt=3,Wt=60,Rt=.25,Mt=.3,Dt=6,Bt=.15,jt=.05,Gt=.15,Ht=1.4,Ut=.25,Kt=.3,Yt=.1,St=.3,ct=[{share:.42,t:{size:1.6,move:0,filter:.9}},{share:.34,t:{size:.9,move:.4,seg:.1}},{share:.22,t:{size:.4,move:.5,burrow:.15,filter:.05}},{share:.02,t:{size:.8,move:0,carn:.7,jaws:.2}}],K=class{constructor({seed:t="opabinia",scenario:e="real",params:s={}}={}){this.seed=String(t),this.scenario=e,this.params=bt(e,s),this.rng=new J(this.seed),this.step=0,this.done=!1,this.nextId=0,this.tr=new Float64Array(T*w),this.hox=new Uint8Array(T),this.x=new Float64Array(T),this.y=new Float64Array(T),this.z=new Float64Array(T),this.e=new Float64Array(T),this.sp=new Int32Array(T),this.id=new Int32Array(T),this.n=0,this.L=new Float64Array(T),this.b=new Float64Array(T),this.v=new Float64Array(T),this.R=new Float64Array(T),this.food=new Float64Array(T),this.cost=new Float64Array(T),this.dead=new Uint8Array(T),this.col=new Int32Array(T),this.binStart=new Int32Array(I+1),this.binItems=new Int32Array(T),this.mat=new Float64Array(d.cols).fill(.85),this.det=new Float64Array(d.cols).fill(.4),this.turb=new Float64Array(d.cols),this.species=[],this.history=[],this.log=[],this.flags={},this.snapshots={},this.kills=[],this.totalKills=0,this.eyeTimes={first:null,lens:null},this.seedAnimals(),this.record()}get ma(){return mt(this.step)}newSpecies(t,e){let s={id:this.species.length,parent:e,born:this.step,died:-1,founder:this.tr.slice(t*w,t*w+w),mean:new Float64Array(w),count:0,group:at(this.tr,t*w),maxL:0,hox:this.hox[t]};return s.name=wt(s.id),this.species.push(s),s.id}seedAnimals(){let t=this.rng,e=this.params.eyesEarly?.25:0;for(let s=0;s<ct.length;s++){let o=Math.round(.6*d.N*ct[s].share),n=-1;for(let i=0;i<o;i++){let l=this.n++,m=l*w;for(let g=0;g<w;g++)this.tr[m+g]=0;for(let[g,k]of Object.entries(ct[s].t))this.tr[m+a[g]]=k;this.tr[m+a.eye]=e;for(let g=0;g<w;g++){let k=g===a.size?.1:.03,h=this.tr[m+g]+k*t.normal();this.tr[m+g]=g===a.size?Math.max(0,h):lt(h)}s===0&&(this.tr[m+a.move]=0);let p=this.params;p.predators||(this.tr[m+a.carn]=0),p.eyes||(this.tr[m+a.eye]=0),p.burrowing||(this.tr[m+a.burrow]=0),p.armour||(this.tr[m+a.armour]=0),this.hox[l]=4,this.id[l]=this.nextId++,this.x[l]=t.float()*d.W,this.z[l]=t.float(),this.e[l]=.5+t.float(),n<0&&(n=this.newSpecies(l,-1)),this.sp[l]=n}}for(let s=0;s<this.n;s++)this.placeY(s)}placeY(t){let e=t*w,s=this.tr,o=s[e+a.move],n=s[e+a.burrow],i=s[e+a.swim];o<.2?this.y[t]=0:n>.5&&n>=i?this.y[t]=-(.15+.85*n)*d.D*(.35+.6*this.z[t]):i>.5?this.y[t]=3+(d.H-14)*(.1+.9*this.z[t])*i:this.y[t]=0}derive(t,e){let{tr:s,hox:o,L:n,b:i,v:l,R:m,cost:p,n:g}=this,k=this.params,h=Gt+3*t;for(let u=0;u<g;u++){let c=u*w,x=s[c+a.size],M=s[c+a.move],A=s[c+a.seg],E=s[c+a.legs],z=s[c+a.swim],O=s[c+a.eye],y=s[c+a.armour],f=s[c+a.spines],b=s[c+a.jaws],S=s[c+a.burrow],v=s[c+a.carn],L=s[c+a.filter],P=$(x);n[u]=P,i[u]=$(.5*x);let C=P/10,N=M<.2?0:M;l[u]=N*(.25+.9*E*(.4+.6*A)+1.3*z)*Math.sqrt(.3+C)*(1-.5*y*(1-.6*A)),m[u]=Math.min(60,1+C*(3+15*O*O));let H=0;for(let st=0;st<rt.length;st++)s[c+rt[st]]>.4&&H++;let W=H>o[u]?.22*(H-o[u]):0,U=(.35+.25*N+.35*E+1*z+.6*v*(.5+b)+Ht*S+Ut*O)*(.4+.15*x)*(1-Kt*z),V=U>h?4*(U-h):0;p[u]=.55+.05*N+.1*E+.28*z+.14*O*k.eyeCost+Bt*y*e+.08*f+.1*b+.1*S*(1+.5*x)+.03*A+jt*x*x+.04*L+W+V}}move(){let{tr:t,x:e,n:s,v:o,mat:n,det:i,rng:l,col:m}=this;for(let p=0;p<s;p++){let g=p*w;if(t[g+a.move]>=.2){let k=l.normal()*o[p]*2.5,h=Math.floor(e[p]/d.colW),u=t[g+a.burrow];if(t[g+a.carn]<.5&&t[g+a.swim]<.5&&l.chance(.3+.5*t[g+a.eye])){let c=(h+d.cols-1)%d.cols,x=(h+1)%d.cols,M=E=>(1-u)*n[E]+u*i[E],A=M(h);M(c)>A&&M(c)>=M(x)?k-=d.colW*(.5+.5*l.float()):M(x)>A&&(k+=d.colW*(.5+.5*l.float()))}e[p]=((e[p]+k)%d.W+d.W)%d.W}this.placeY(p),m[p]=Math.min(d.cols-1,Math.floor(e[p]/d.colW))}}buildBins(){let{x:t,n:e,binStart:s,binItems:o}=this;s.fill(0);for(let i=0;i<e;i++)s[Math.min(I-1,Math.floor(t[i]/j))+1]++;for(let i=0;i<I;i++)s[i+1]+=s[i];let n=s.slice(0,I);for(let i=0;i<e;i++)o[n[Math.min(I-1,Math.floor(t[i]/j))]++]=i}killChance(t,e){let{tr:s,L:o,v:n,R:i,y:l}=this,m=t*w,p=e*w,g=Math.min(1,Mt+(1-Mt)*3*o[e]/o[t]);l[e]<0?g*=1-.85*s[p+a.burrow]*(1-s[m+a.burrow]):l[e]>1&&s[m+a.swim]<.5&&(g*=.25);let k=s[m+a.jaws];if(o[e]*(1+1.5*s[p+a.spines])>o[t]*(.5+.7*k))return 0;let u=i[e]/(i[e]+i[t]),c=s[p+a.move]<.2?0:Math.min(1,1.3*n[e]/(n[e]+n[t]+.02)),x=o[t]/o[e]-1,M=.25+1.75*k+.4*(x<0?0:x>2?2:x),A=.25+Dt*s[p+a.armour]*(1-.5*k);return g*(1-u*c)*(M/(M+A))}hunt(){let{tr:t,n:e,rng:s,x:o,y:n,b:i,R:l,food:m,dead:p,binStart:g,binItems:k}=this;if(this.kills=[],!this.params.predators)return;let h=new Float64Array(I);for(let c=0;c<e;c++)h[Math.min(I-1,Math.floor(o[c]/j))]+=t[c*w+a.carn];let u=[];for(let c=0;c<e;c++)t[c*w+a.carn]>.05&&u.push(c);vt(u,s);for(let c of u){if(p[c])continue;let x=t[c*w+a.carn],M=2.2*i[c],A=0,E=Math.floor(6*x)+(s.chance(6*x-Math.floor(6*x))?1:0),z=1,O=l[c],y=Math.max(1,Math.ceil(O/j));for(let f=0;f<E&&A<M&&z>0;f++){let b=-1,S=0,v=0;for(let P=0;P<12;P++){let C=((Math.floor(o[c]/j)+s.int(2*y+1)-y)%I+I)%I,N=g[C],H=s.int(Wt);if(H>=g[C+1]-N)continue;let W=k[N+H];if(W===c||p[W])continue;let q=Math.abs(o[W]-o[c]);if(q>d.W/2&&(q=d.W-q),q>O)continue;let U=this.killChance(c,W);if(U<=0)continue;let V=U*Math.min(kt*i[W],M-A);V>S&&(S=V,b=W,v=U)}if(b<0)continue;let L=h[Math.min(I-1,Math.floor(o[c]/j))]-x;if(s.chance(v/(1+Rt*Math.max(0,L)))){p[b]=2;let P=kt*i[b],C=Math.min(P,M-A);A+=C,this.det[this.col[b]]+=.3*(P-C)/tt,this.kills.push([this.id[c],this.id[b],o[b],n[b]]),o[c]=o[b],z-=.1+i[b]/i[c]}}m[c]+=A}this.totalKills+=this.kills.length}feed(){let{tr:t,n:e,b:s,food:o,dead:n,col:i,mat:l,det:m}=this,p=this.params,g=new Float64Array(d.cols),k=new Float64Array(d.cols),h=0,u=new Float64Array(e),c=new Float64Array(e),x=new Float64Array(e);for(let y=0;y<e;y++){if(n[y])continue;let f=y*w,b=2.2*s[y]*(1-t[f+a.carn]),S=t[f+a.filter],v=t[f+a.burrow],L=t[f+a.move]>=.2,P=1+.3*t[f+a.legs]*(.5+.5*t[f+a.seg]);u[y]=b*(1-S)*(1-v)*(L?P:.15)*(this.y[y]>1?.15:1),c[y]=b*(1-S)*v*P,x[y]=b*S,g[i[y]]+=u[y],k[i[y]]+=c[y],h+=x[y]}let M=Nt*p.plankton,A=h>M?M/h:1,E=new Float64Array(d.cols),z=new Float64Array(d.cols);for(let y=0;y<e;y++){if(n[y])continue;let f=y*w,b=i[y],S=l[b]*xt,v=m[b]*tt,L=u[y]*(g[b]>S?S/g[b]:1),P=c[y]*(k[b]>v?v/k[b]:1),C=t[f+a.move]>=.2?1:0,N=.5+.5*(1-C)-.35*t[f+a.swim];C||(N*=1-(1-t[f+a.armour])*(1-l[b])),o[y]+=L+P+x[y]*A*N,E[b]+=L,z[b]+=P}let O=new Float64Array(d.cols);for(let y=0;y<e;y++){if(n[y])continue;let f=t[y*w+a.burrow];f>.35&&(O[i[y]]+=(f-.35)*Math.sqrt(this.L[y]/10))}for(let y=0;y<d.cols;y++){this.turb[y]=.8*this.turb[y]+.2*(O[y]/3);let f=Math.max(.04,1-.95*Math.min(1,this.turb[y])),b=l[y]-.12*E[y]/xt;b+=1.3*p.mats*b*(f-b)+.003,l[y]=Math.max(0,Math.min(1,b));let S=m[y]-z[y]/tt+.12*l[y]+.04;m[y]=Math.max(0,Math.min(3,S*.92))}}turnover(){let{tr:t,n:e,rng:s,food:o,b:n,cost:i,dead:l,e:m}=this,p=this.params;for(let h=0;h<e;h++){if(l[h])continue;let u=At(t[h*w+a.size]);m[h]=Math.min(2*u,m[h]+o[h]/n[h]-i[h]),(m[h]<-1||s.chance(Yt*$(-.25*t[h*w+a.size])))&&(l[h]=1,this.det[this.col[h]]+=.5*n[h]/tt)}let g=0;for(let h=0;h<e;h++)l[h]||(g!==h&&this.copy(h,g),g++);this.n=g;let k=[];for(let h=0;h<g;h++)k.push(h);vt(k,s);for(let h of k){let u=At(t[h*w+a.size]),c=0;for(;m[h]>=u&&c<2&&this.n<d.N;)m[h]-=u,this.birth(h,p),c++}this.clearScratch()}clearScratch(){this.dead.fill(0,0,this.n),this.food.fill(0,0,this.n)}copy(t,e){this.tr.copyWithin(e*w,t*w,t*w+w),this.hox[e]=this.hox[t],this.x[e]=this.x[t],this.y[e]=this.y[t],this.z[e]=this.z[t],this.e[e]=this.e[t],this.sp[e]=this.sp[t],this.id[e]=this.id[t],this.col[e]=this.col[t],this.L[e]=this.L[t],this.b[e]=this.b[t]}birth(t,e){let s=this.rng,o=this.n++,n=o*w,i=t*w,l=this.tr,m=e.mutation;for(let h=0;h<w;h++){let u=l[i+h];if(s.chance(B.p*m)){let c=(h===a.size?B.sdSize:B.sd)*(s.chance(B.big)?5:1);u+=c*s.normal()}l[n+h]=h===a.size?Math.min(d.maxSize,Math.max(0,u)):lt(u)}e.predators||(l[n+a.carn]=0),e.eyes||(l[n+a.eye]=0),e.burrowing||(l[n+a.burrow]=0),e.armour||(l[n+a.armour]=0);let p=this.hox[t];s.chance(B.hoxGain*m)&&p<d.hoxMax?p++:s.chance(B.hoxLoss*m)&&p>1&&p--,this.hox[o]=p,this.x[o]=((this.x[t]+s.normal()*3)%d.W+d.W)%d.W,this.z[o]=lt(this.z[t]+.15*s.normal()),this.e[o]=.3,this.id[o]=this.nextId++,this.dead[o]=0,this.food[o]=0,this.col[o]=Math.min(d.cols-1,Math.floor(this.x[o]/d.colW)),this.L[o]=$(l[n+a.size]),this.b[o]=$(.5*l[n+a.size]);let g=this.species[this.sp[t]],k=0;for(let h=0;h<w;h++){let u=h===a.size?.3333333333333333:1,c=(l[n+h]-g.founder[h])*u;k+=c*c}this.sp[o]=k>St*St?this.newSpecies(o,g.id):g.id,this.placeY(o)}run(t=1){for(let e=0;e<t&&!this.done;e++)this.tick()}tick(){let t=this.ma,e=X(t,this.params),s=gt(t,this.params);this.derive(e,s),this.move(),this.buildBins(),this.hunt(),this.feed(),this.turnover(),this.step++,this.step>=d.steps&&(this.done=!0),this.record()}record(){let{tr:t,n:e,sp:s,species:o}=this,n=this.ma;for(let f of o)f.died>=0||(f.count=0,f.mean.fill(0),f.maxL=0);let i=0,l=0,m=0,p=0,g=0,k=0,h=0,u=0,c=new Array(R.length).fill(0);for(let f=0;f<e;f++){let b=f*w,S=o[s[f]];S.count++;for(let L=0;L<w;L++)S.mean[L]+=t[b+L];let v=d.lenScale*$(t[b+a.size]);v>S.maxL&&(S.maxL=v),v>h&&(h=v),u+=t[b+a.size],t[b+a.eye]>.3&&i++,t[b+a.eye]>.7&&l++,t[b+a.armour]>.5&&m++,t[b+a.burrow]>.5&&g++,t[b+a.carn]>.5&&t[b+a.move]>=.2&&(p++,v>k&&(k=v))}let x=[],M=new Array(R.length).fill(0);for(let f of o)if(!(f.died>=0)){if(f.count===0){f.died=this.step;continue}for(let b=0;b<w;b++)f.mean[b]/=f.count;f.group=at(f.mean),x.push(f),M[f.group]++,c[f.group]+=f.count}let A=0;if(x.length>1)for(let f=0;f<w;f++){let b=f===a.size?.3333333333333333:1,S=0;for(let L of x)S+=L.mean[f]*b;S/=x.length;let v=0;for(let L of x)v+=(L.mean[f]*b-S)**2;A+=v/(x.length-1)}let E=0;for(let f=0;f<d.cols;f++)E+=this.mat[f];let z=0;for(let f=0;f<e;f++)z+=this.hox[f];let O=M.filter(f=>f>0).length,y={step:this.step,ma:n,n:e,species:x.length,groups:M,indiv:c,nGroups:O,disparity:A,eyes:e?i/e:0,lens:e?l/e:0,armour:e?m/e:0,carn:e?p/e:0,burrow:e?g/e:0,maxL:h,bigPred:k,meanL:e?d.lenScale*$(u/e):0,mat:E/d.cols,o2:X(n,this.params),kills:this.kills.length,hox:e?z/e:0,originations:o.filter(f=>f.born===this.step&&this.step>0).length};this.history.push(y),this.notice(y,x)}note(t,e,s={}){this.log.push({step:this.step,ma:this.ma,kind:t,text:e,...s})}notice(t,e){let s=this.flags,o=(i,l,m,p,g)=>{!s[i]&&l&&(s[i]=!0,this.note(m,p,{key:i,...g}))},n=i=>i>=100?`${Math.round(i/10)} cm`:i>=10?`${(i/10).toFixed(1)} cm`:`${i.toFixed(1)} mm`;o("pred",t.carn>=.02,"predator",`Animals start eating animals. The biggest hunter is ${n(t.bigPred)} long.`),o("burrow",t.burrow>=.03,"burrow","Animals dig into the sediment, out of reach and onto buried food."),o("skel",t.armour>=.03,"armour","Mineral skeletons: shells and plates spread among the animals."),o("eye1",t.eyes>=.03,"eye","Eyes: cups of light-sensitive cells let animals tell where light and shadow come from."),o("eye2",t.lens>=.03,"eye","Eyes with lenses: animals now see shapes, at a distance."),o("pred1",t.carn>=.02&&t.bigPred>=10,"predator","A predator reaches 1 cm."),o("pred10",t.carn>=.02&&t.bigPred>=100,"predator","A predator reaches 10 cm, a giant among the small animals around it."),o("mats",t.mat<.5&&this.step>10,"world","The microbial mats cover less than half of the sea floor: burrowers are churning them up."),o("cambrian",t.ma<=d.cambrian,"date","The Cambrian begins (538.8 million years ago), marked in the rocks by the first Treptichnus burrows.");for(let i=0;i<R.length;i++){if(i===F.frond||i===F.soft||i===F.polyp)continue;let l=R[i],m=e.find(p=>p.group===i&&p.count>=8);o(`g-${l.key}`,!!m,"group",`First ${l.name.toLowerCase()} (like ${l.like}): ${m?m.name:""}.`,{group:i,species:m?m.id:-1})}t.indiv[F.frond]>.2*t.n&&(s.frondsMany=!0),o("frondsGone",s.frondsMany&&t.indiv[F.frond]<.01*t.n,"group","The Ediacaran fronds are gone: eaten, out-competed and smothered."),this.eyeTimes.first===null&&t.eyes>=.03&&(this.eyeTimes.first=t.ma),this.eyeTimes.lens===null&&t.lens>=.03&&(this.eyeTimes.lens=t.ma);for(let[i,l]of[["chengjiang",d.chengjiang],["burgess",d.burgess]])!this.snapshots[i]&&t.ma<=l+1e-9&&(this.snapshots[i]=this.fauna(e))}fauna(t=this.species.filter(e=>e.died<0&&e.count>0)){return t.filter(e=>e.count>=3).sort((e,s)=>s.count-e.count).map(e=>({id:e.id,name:e.name,group:e.group,count:e.count,born:e.born,parent:e.parent,maxL:e.maxL,mean:Array.from(e.mean,s=>Math.round(s*1e3)/1e3)}))}frame(){let{n:t,tr:e}=this,s=18,o=new Float32Array(t*s);for(let n=0;n<t;n++){let i=n*w,l=n*s;o[l]=this.id[n],o[l+1]=this.x[n],o[l+2]=this.y[n],o[l+3]=this.z[n],o[l+4]=this.species[this.sp[n]].group,o[l+5]=this.sp[n];for(let m=0;m<w;m++)o[l+6+m]=e[i+m]}return{step:this.step,ma:this.ma,n:t,F:s,agents:o,mat:Float32Array.from(this.mat),turb:Float32Array.from(this.turb),kills:this.kills.slice(0,60),o2:X(this.ma,this.params),fauna:this.fauna().slice(0,40)}}geometry(){return{W:d.W,H:d.H,D:d.D,cols:d.cols,colW:d.colW,steps:d.steps,t0:d.t0,t1:d.t1,dt:d.dt}}setParams(t){this.params={...this.params,...t}}inject(t){let e=this.rng;if(t==="predator"){let s=-1;for(let o=0;o<8&&this.n<T;o++){let n=this.n++,i=n*w,l={size:2,move:.9,seg:.6,swim:.9,eye:.85,jaws:.9,carn:.95,legs:.1,armour:.1};for(let m=0;m<w;m++)this.tr[i+m]=0;for(let[m,p]of Object.entries(l))this.tr[i+a[m]]=p;this.hox[n]=6,this.x[n]=e.float()*d.W,this.z[n]=e.float(),this.e[n]=2,this.id[n]=this.nextId++,s<0&&(s=this.newSpecies(n,-1)),this.sp[n]=s,this.L[n]=$(2),this.b[n]=$(1),this.placeY(n)}this.note("lab","You released eight big, sharp-eyed swimming predators.")}else if(t==="extinction"){let s=0;for(let o=0;o<this.n;o++)e.chance(.7)||(s!==o&&this.copy(o,s),s++);this.n=s,this.note("lab","You struck: seven in ten animals died at random, a mass extinction.")}else if(t==="blind"){for(let s=0;s<this.n;s++)this.tr[s*w+a.eye]=0;this.note("lab","You took every animal’s eyes away.")}this.history.pop(),this.record()}},At=r=>.6*$(.25*r);function vt(r,t){for(let e=r.length-1;e>0;e--){let s=t.int(e+1),o=r[e];r[e]=r[s],r[s]=o}return r}var Ft=[2,6,20,1e3];function Tt(r){let t=null,e=null,s=!1,o=1,n=null,i=0,l=0,m=()=>{let h=t.history,u=h.slice(i);i=h.length;let c=t.log.slice(l);l=t.log.length,r({type:"tick",frame:t.frame(),points:u,notes:c,params:t.params,running:s,done:t.done,snapshots:t.done?t.snapshots:null,eyeTimes:t.eyeTimes})},p=()=>{s=!1,n=null,e&&clearTimeout(e),e=null},g=()=>{if(e=null,!s)return;let h=Ft[o]??Ft[1],u=30,c=Date.now(),x=Math.max(1,Math.round(h/20)),M=0;for(;!t.done&&(M<x||h>=1e3&&Date.now()-c<u)&&!(n!==null&&t.step>=n||(t.run(1),M++,Date.now()-c>u*2)););let A=n!==null&&t.step>=n;(t.done||A)&&(s=!1,n=null),m();let E=h>=1e3?0:Math.max(0,1e3*Math.max(M,1)/h-(Date.now()-c));s?e=setTimeout(g,E):r({type:"paused",step:t.step,done:t.done})},k=()=>{t.done||(s=!0,e||(e=setTimeout(g,0)))};return function(u){try{switch(u.type){case"init":{p(),t=new K({seed:u.seed,scenario:u.scenario,params:u.params??{}}),i=0,l=0,r({type:"ready",geometry:t.geometry(),seed:t.seed,scenario:t.scenario,scenarios:Z,defaults:it,ranges:ft,toggles:pt,steps:d.steps,dates:{cambrian:d.cambrian,cloudina:d.cloudina,chengjiang:d.chengjiang,emu:d.emu,burgess:d.burgess}}),m();break}case"play":if(!t)break;typeof u.speed=="number"&&(o=u.speed),n=null,k();break;case"speed":o=u.speed;break;case"pause":p(),t&&r({type:"paused",step:t.step,done:t.done});break;case"runTo":if(!t)break;if(typeof u.speed=="number"&&(o=u.speed),t.step>=u.step){p(),r({type:"paused",step:t.step,done:t.done});break}n=u.step,k();break;case"step":if(!t)break;p(),t.run(u.n??1),m(),r({type:"paused",step:t.step,done:t.done});break;case"inject":if(!t)break;t.inject(u.kind),m();break;case"set":if(!t)break;t.setParams(u.patch),m();break;default:break}}catch(c){p(),r({type:"error",message:String(c&&c.stack?c.stack:c)})}}}var qt=()=>new Promise(r=>setTimeout(r,0)),Vt="opabinia",et=["real","noPredators","lowOxygen","lightSwitch"];function _t(r){let t={};for(let e of r.log)e.key&&t[e.key]===void 0&&(t[e.key]=e.ma);return{history:r.history,first:t,burgess:r.snapshots.burgess??null}}async function Lt(r,{seed:t=Vt}={}){let e=et.length*d.steps,s={},o=Date.now();for(let n=0;n<et.length;n++){let i=new K({seed:t,scenario:et[n]});for(;!i.done;)i.run(1),Date.now()-o>40&&(r&&r({step:n*d.steps+i.step,total:e}),await qt(),o=Date.now());s[et[n]]=_t(i)}return Jt(s.real,{noPredators:s.noPredators,lowOxygen:s.lowOxygen,lightSwitch:s.lightSwitch})}var D=r=>r===void 0||r<0?"never":`${r.toFixed(0)} Ma`,Qt=r=>r>=100?`${Math.round(r/10)} cm`:`${(r/10).toFixed(1)} cm`,G=r=>`${Math.round(r*100)} %`,Y=(r,t)=>r.history[Math.min(r.history.length-1,nt(t))];function Jt(r,t=null){let e=r.first,s=Y(r,d.burgess),o=Y(r,550),n=Y(r,545),i=[],l=u=>i.push(u),m=(u,c)=>u!==void 0&&(c===void 0||u>c);l({id:"huntersFirst",title:"Hunters come before armour",model:`mobile predators by ${D(e.pred)}; skeletons spread at ${D(e.skel)}`,real:"bore holes in Cloudina tubes about 550 Ma, before the small shelly fossils from 538 Ma",how:"emerges",pass:m(e.pred,e.skel),source:"Bengtson & Zhao 1992; Hua et al. 2003"}),l({id:"armourFirst",title:"Skeletons come before sharp eyes",model:`skeletons spread at ${D(e.skel)}; eyes with lenses at ${D(e.eye2)}`,real:"skeletons from 550 Ma (Cloudina) and 538 Ma (small shelly fossils); the oldest eyes about 530 to 521 Ma",how:"emerges",pass:m(e.skel,e.eye2),source:"Kouchinsky et al. 2012; Schoenemann et al. 2017"}),l({id:"skelTime",title:"When skeletons spread",model:D(e.skel),real:"small shelly fossils diversify from 538 to about 525 Ma (accept 545 to 525)",how:"tuned",pass:e.skel!==void 0&&e.skel<=545&&e.skel>=525,source:"Kouchinsky et al. 2012; Maloof et al. 2010"}),l({id:"eyeTime",title:"When eyes with lenses appear",model:D(e.eye2),real:"compound eyes of trilobites and radiodonts, about 530 to 515 Ma (accept 535 to 512)",how:"emerges",pass:e.eye2!==void 0&&e.eye2<=535&&e.eye2>=512,source:"Schoenemann et al. 2017; Paterson et al. 2011"});let p=s?s.groups[F.arthropod]/Math.max(1,s.species):0,g=s?s.groups.indexOf(Math.max(...s.groups)):-1;l({id:"arthropods",title:"At Burgess Shale time, arthropods are the richest group",model:`${G(p)} of species are arthropods; the richest group is ${g>=0?R[g].name.toLowerCase():"–"}`,real:"arthropods are the largest group in the Burgess Shale, about 37 % of its species",how:"tuned",pass:g===F.arthropod,source:"Conway Morris 1986; Caron & Jackson 2008"});let k=s.disparity/Math.max(1e-9,o.disparity);if(l({id:"disparity",title:"Body plans spread out fast",model:`disparity at 508 Ma is ${k.toFixed(1)} times that at 550 Ma`,real:"by the Burgess Shale, Cambrian arthropods alone were as varied in form as living ones (accept 2 times or more)",how:"emerges",pass:k>=2,source:"Briggs, Fortey & Wills 1992; Erwin et al. 2011"}),l({id:"mats",title:"Microbial mats give way to churned mud",model:`mats cover ${G(o.mat)} of the floor at 550 Ma and ${G(s.mat)} at 508 Ma`,real:"mats cover Ediacaran sea floors; burrowers break them up through the Cambrian (accept at least 70 % before, at most 60 % after)",how:"emerges",pass:o.mat>=.7&&s.mat<=.6,source:"Seilacher 1999; Bottjer, Hagadorn & Dornbos 2000"}),l({id:"topPredator",title:"The biggest hunter at Burgess Shale time",model:Qt(s.bigPred),real:"Anomalocaris canadensis grew to about 30 to 40 cm; most Cambrian hunters were far smaller (accept 8 to 100 cm)",how:"tuned",pass:s.bigPred>=80&&s.bigPred<=1e3,source:"Daley & Edgecombe 2014; Lerosey-Aubril & Pates 2021"}),t){let u=Y(t.noPredators,d.burgess);l({id:"noPredators",title:"Without predators, no explosion",model:`disparity ${u.disparity.toFixed(2)} against ${s.disparity.toFixed(2)}; skeletons on ${G(u.armour)} of animals, eyes on ${G(u.eyes)}`,real:"the arms-race view: predation drove armour, eyes and the spread of body plans (accept disparity below 60 % of the default, armour and eyes under 10 %)",how:"emerges",pass:u.disparity<.6*s.disparity&&u.armour<.1&&u.eyes<.1,source:"Stanley 1973; Vermeij 1989; Bengtson 2002"});let c=Y(t.lowOxygen,525),x=Y(r,525);l({id:"lowOxygen",title:"Low oxygen holds the explosion back",model:`at 525 Ma: disparity ${c.disparity.toFixed(2)} against ${x.disparity.toFixed(2)}, mats ${G(c.mat)} against ${G(x.mat)}`,real:"active hunting and deep burrowing need more oxygen than Ediacaran seas held (accept disparity lower and mats higher than the default)",how:"built in",pass:c.disparity<x.disparity&&c.mat>x.mat,source:"Sperling et al. 2013; Knoll & Carroll 1999"});let M=t.lightSwitch.first;l({id:"eyesFirst",title:"If eyes had come first, the fossil order would be reversed",model:`with cheap early eyes: eyes with lenses at ${D(M.eye2)}, skeletons at ${D(M.skel)}`,real:"the record shows skeletons before eyes, so eyes alone did not start the arms race (Parker’s light switch, as first dated)",how:"emerges",pass:m(M.eye2,M.skel),source:"Parker 2003; Schoenemann et al. 2017"})}let h=i.filter(u=>u.pass).length;return{checks:i,passed:h,total:i.length,burgess:r.burgess?r.burgess.slice(0,12):null}}var Zt=Tt(r=>self.postMessage(r));self.onmessage=r=>{let t=r.data;if(t.type==="validate"){Lt(e=>self.postMessage({type:"validation-progress",...e})).then(e=>self.postMessage({type:"validation",result:e})).catch(e=>self.postMessage({type:"error",message:String(e)}));return}Zt(t)};})();';function xs(){if(!St||typeof Worker>"u"||typeof Blob>"u")return null;try{return URL.createObjectURL(new Blob([St],{type:"text/javascript"}))}catch{return null}}function $t(s){let e=xs(),t=null,a=null,o=!1,n=[],i=()=>{if(!a){t&&t.terminate(),t=null,a=Tt(r=>setTimeout(()=>s(r),0));for(let r of n.splice(0))a(r)}};if(e)try{t=new Worker(e),t.onmessage=r=>{o=!0,n.length=0,s(r.data)},t.onerror=r=>{o?s({type:"error",message:r.message||"The simulation stopped."}):(r.preventDefault?.(),i())}}catch{t=null}return t||i(),{get mode(){return t?"worker":"page"},send(r){t?(o||n.push(r),t.postMessage(r)):a(r)},validate(r){return e&&t?new Promise((g,f)=>{let w;try{w=new Worker(e)}catch{Je(r).then(g,f);return}w.onmessage=b=>{let p=b.data;p.type==="validation-progress"?r?.(p):p.type==="validation"?(w.terminate(),g(p.result)):p.type==="error"&&(w.terminate(),f(new Error(p.message)))},w.onerror=b=>{w.terminate(),f(new Error(b.message||"The check stopped."))},w.postMessage({type:"validate"})}):Je(r)}}}var te=Math.PI*2;function ge(s,e,t,a,o,n,i,r,g="live"){let[,f,w,b,p,m,c,l,d,v,M,P]=e;s.save(),s.translate(t,a),n<0&&s.scale(-1,1);let E=g==="fossil",u=E?"rgba(20,18,16,0.55)":j(r,-.45);if(s.lineCap="round",s.lineJoin="round",f<.2){M>.5?$s(s,o,r,u,i,d,E):c>.4?Ss(s,o,r,u,i,P,E):Ts(s,o,r,u,i,E),s.restore();return}b<.3&&p<.3&&c<.35&&l<.4&&(v>.4||w>.3&&M>.3)?As(s,o,r,u,i,w,m,d,l,E):Ps(s,o,e,r,u,i,E),s.restore()}function j(s,e){let t=parseInt(s.slice(1),16),a=t>>16&255,o=t>>8&255,n=t&255,i=r=>Math.round(e<0?r*(1+e):r+(255-r)*e);return a=i(a),o=i(o),n=i(n),`rgb(${a},${o},${n})`}function Ts(s,e,t,a,o,n){let i=e*1.2,r=Math.sin(o*.6)*e*.06;s.fillStyle=n?"rgba(20,18,16,0.25)":j(t,-.25),s.beginPath(),s.ellipse(0,0,e*.16,e*.06,0,0,te),s.fill(),s.strokeStyle=a,s.lineWidth=Math.max(1,e*.04),s.beginPath(),s.moveTo(0,0),s.quadraticCurveTo(r*.5,-i*.2,r,-i*.3),s.stroke(),s.fillStyle=n?"rgba(20,18,16,0.18)":t,s.beginPath(),s.moveTo(r,-i*.3),s.bezierCurveTo(r-e*.32,-i*.5,r-e*.2,-i*.9,r,-i),s.bezierCurveTo(r+e*.2,-i*.9,r+e*.32,-i*.5,r,-i*.3),s.fill(),s.strokeStyle=n?a:j(t,-.3),s.lineWidth=Math.max(.6,e*.015),s.beginPath(),s.moveTo(r,-i*.3),s.lineTo(r,-i);for(let g=1;g<8;g++){let f=-i*(.3+.7*g/8),w=e*.22*Math.sin(Math.PI*g/8);s.moveTo(r,f),s.lineTo(r-w,f-e*.05),s.moveTo(r,f),s.lineTo(r+w,f-e*.05)}s.stroke()}function Ss(s,e,t,a,o,n,i){let r=e*.9,g=5;s.strokeStyle=a,s.lineWidth=Math.max(.8,e*.03),s.fillStyle=i?"rgba(20,18,16,0.2)":t;for(let f=0;f<g;f++){let w=-(r*f)/g,b=-(r*(f+1))/g,p=e*(.07+.03*f),m=e*(.1+.03*f);s.beginPath(),s.moveTo(-p,w),s.lineTo(-m,b),s.lineTo(m,b),s.lineTo(p,w),s.closePath(),s.fill(),s.stroke()}if(n>.3){s.strokeStyle=i?a:j(t,.4),s.lineWidth=Math.max(.6,e*.015),s.beginPath();for(let f=-3;f<=3;f++){let w=f/3*.7+Math.sin(o+f)*.08;s.moveTo(0,-r),s.lineTo(Math.sin(w)*e*.35,-r-Math.cos(w)*e*.35)}s.stroke()}}function $s(s,e,t,a,o,n,i){let r=e*.8;s.fillStyle=i?"rgba(20,18,16,0.22)":t,s.strokeStyle=a,s.lineWidth=Math.max(.8,e*.03),s.beginPath(),s.moveTo(-e*.12,0),s.quadraticCurveTo(-e*.16,-r*.5,-e*.18,-r),s.lineTo(e*.18,-r),s.quadraticCurveTo(e*.16,-r*.5,e*.12,0),s.closePath(),s.fill(),s.stroke(),s.strokeStyle=i?a:j(t,.25),s.lineWidth=Math.max(.7,e*.035),s.beginPath();let g=7+Math.round(n*4);for(let f=0;f<g;f++){let w=-1.1+2.2*f/(g-1),b=Math.sin(o*1.3+f)*.15,p=e*.42;s.moveTo(Math.sin(w)*e*.15,-r),s.quadraticCurveTo(Math.sin(w)*p*.8,-r-p*.5,Math.sin(w+b)*p,-r-Math.cos(w+b)*p*.9)}s.stroke()}function As(s,e,t,a,o,n,i,r,g,f){let b=[];for(let m=0;m<=14;m++){let c=m/14;b.push([e*(.5-c),Math.sin(o*2+c*7)*e*.07])}s.strokeStyle=f?"rgba(20,18,16,0.45)":t,s.lineWidth=Math.max(1.5,e*.13),s.beginPath(),s.moveTo(b[0][0],b[0][1]);for(let m of b)s.lineTo(m[0],m[1]);if(s.stroke(),n>.2){s.strokeStyle=a,s.lineWidth=Math.max(.5,e*.012),s.beginPath();let m=3+Math.round(n*10);for(let c=1;c<m;c++){let l=b[Math.round(c/m*14)];s.moveTo(l[0],l[1]-e*.065),s.lineTo(l[0],l[1]+e*.065)}s.stroke()}let p=b[0];if(r>.3){s.strokeStyle=a,s.lineWidth=Math.max(.6,e*.02),s.beginPath();for(let m=-2;m<=2;m++)s.moveTo(p[0],p[1]),s.lineTo(p[0]+e*.1,p[1]+m*e*.025);s.stroke()}g>.2&&Cs(s,b,e,g,a,-1),i>.2&&At(s,p[0]-e*.02,p[1]-e*.03,e,i,f)}function Cs(s,e,t,a,o,n){s.strokeStyle=o,s.lineWidth=Math.max(.6,t*.018),s.beginPath();let i=3+Math.round(a*5);for(let r=1;r<=i;r++){let g=e[Math.round(r/(i+1)*(e.length-1))];s.moveTo(g[0],g[1]+n*t*.06),s.lineTo(g[0]-t*.04,g[1]+n*t*(.06+.22*a))}s.stroke()}function At(s,e,t,a,o,n){if(o>.65){s.strokeStyle=n?"rgba(20,18,16,0.5)":"#2a2620",s.lineWidth=Math.max(.6,a*.02),s.beginPath(),s.moveTo(e,t),s.lineTo(e+a*.04,t-a*.1),s.stroke();let i=Math.max(1.4,a*(.035+.04*o));s.fillStyle=n?"rgba(20,18,16,0.6)":"#141210",s.beginPath(),s.arc(e+a*.045,t-a*.11,i,0,te),s.fill(),n||(s.fillStyle="rgba(255,255,255,0.75)",s.beginPath(),s.arc(e+a*.045+i*.35,t-a*.11-i*.35,i*.3,0,te),s.fill())}else{let i=Math.max(.9,a*.025*(.5+o));s.fillStyle=n?"rgba(20,18,16,0.6)":"#141210",s.beginPath(),s.arc(e,t,i,0,te),s.fill()}}function Ps(s,e,t,a,o,n,i){let[,,r,g,f,w,b,p,m,c]=t,l=e,d=l*(.2+.12*b+.06*(1-f)),v=2+Math.round(r*12),M=b>.35&&r>.35,P=i?"rgba(20,18,16,0.22)":b>.4?j(a,-.08):a;if(f>.3){s.fillStyle=i?"rgba(20,18,16,0.14)":j(a,.35);let u=Math.max(3,v-1);for(let y=0;y<u;y++){let k=(y+.5)/u,S=l*(.38-.8*k),C=Math.sin(n*3-y*.8)*.35,A=l*(.06+.12*f)*(1-.5*Math.abs(k-.4));s.beginPath(),s.ellipse(S-A*.2,d*.55,A*.5,A,.5+C,0,te),s.fill(),s.beginPath(),s.ellipse(S-A*.2,-d*.45,A*.4,A*.75,-.5-C,0,te),s.fill()}}if(g>.25){s.strokeStyle=i?"rgba(20,18,16,0.5)":j(a,-.35),s.lineWidth=Math.max(.7,l*(M?.016:.05)),s.beginPath();let u=Math.max(3,Math.min(14,v+1)),y=d*(M?.45+.4*g:.5+.5*g);for(let k=0;k<u;k++){let S=(k+.5)/u,C=l*(.34-.72*S),A=Math.sin(n*4+k*1.3)*l*.035;s.moveTo(C,d*.35),M?(s.lineTo(C+A-l*.02,d*.35+y*.55),s.lineTo(C+A*1.4-l*.01,d*.35+y)):s.lineTo(C+A,d*.35+y)}s.stroke()}if(m>.35){s.strokeStyle=i?"rgba(20,18,16,0.55)":j(a,-.25),s.lineWidth=Math.max(1,l*.045);let u=l*(.12+.3*m),y=.8+Math.sin(n*1.5)*.25;s.beginPath(),s.moveTo(l*.42,d*.1),s.quadraticCurveTo(l*.42+u,d*.1-u*.2,l*.42+u*.85,d*.1+u*y*.7),s.stroke(),s.lineWidth=Math.max(.5,l*.012),s.beginPath();for(let k=1;k<=4;k++){let S=k/5,C=l*.42+u*S,A=d*.1-u*.15*Math.sin(Math.PI*S);s.moveTo(C,A),s.lineTo(C+l*.01,A+l*.05)}s.stroke()}s.fillStyle=P,s.strokeStyle=o,s.lineWidth=Math.max(.8,l*(.015+.02*b)),s.beginPath();let E=b>.4&&r<.35&&g<.3&&f<.4;if(E){s.save(),s.fillStyle=i?"rgba(20,18,16,0.3)":j(a,-.3),s.beginPath(),s.ellipse(0,d*.55,l*.46,d*.32,0,0,te),s.fill(),s.restore(),s.beginPath(),s.moveTo(-l*.45,d*.45),s.bezierCurveTo(-l*.4,-d*1.3,l*.15,-d*1.6,l*.3,-d*.9),s.quadraticCurveTo(l*.42,-d*.2,l*.45,d*.45),s.closePath(),s.fill(),s.stroke(),s.strokeStyle=i?"rgba(20,18,16,0.4)":j(a,-.35),s.lineWidth=Math.max(.5,l*.01),s.beginPath();for(let u=1;u<=4;u++){let y=u/5;s.moveTo(-l*.45*y,d*.45),s.bezierCurveTo(-l*.4*y,-d*1.3*y,l*.15*y,-d*1.6*y,l*.3*y+l*.05,-d*.9*y)}s.stroke()}else M&&g>.3&&f<.5?(s.moveTo(l*.5,0),s.quadraticCurveTo(l*.48,-d*.95,l*.22,-d),s.lineTo(-l*.32,-d*.8),s.quadraticCurveTo(-l*.52,-d*.5,-l*.5,0),s.quadraticCurveTo(-l*.48,d*.5,-l*.3,d*.55),s.lineTo(l*.25,d*.6),s.quadraticCurveTo(l*.5,d*.5,l*.5,0)):s.ellipse(0,0,l*.5,d,0,0,te);if(E||(s.fill(),s.stroke()),!E&&b<.3&&g<.25&&f<.3&&r<.3){s.strokeStyle=i?"rgba(20,18,16,0.35)":j(a,.3),s.lineWidth=Math.max(.5,l*.012),s.beginPath();for(let u=0;u<18;u++){let y=u/18*te;s.moveTo(Math.cos(y)*l*.46,Math.sin(y)*d*.85),s.lineTo(Math.cos(y)*l*.5,Math.sin(y)*d)}s.stroke()}if(r>.2&&!E){s.strokeStyle=i?"rgba(20,18,16,0.45)":j(a,-.3-.2*b),s.lineWidth=Math.max(.5,l*(.008+.012*b)),s.beginPath();let u=M?l*.18:l*.4,y=M?-l*.3:-l*.42;for(let k=1;k<v;k++){let S=u+(y-u)*(k/v),C=d*Math.sqrt(Math.max(0,1-(S/(l*.5))**2));s.moveTo(S,-C*.95),s.lineTo(S+l*.01,C*.9)}s.stroke()}if(b>.4&&!i&&!E&&(s.strokeStyle=`rgba(255,255,255,${.15+.3*b})`,s.lineWidth=Math.max(.6,l*.02),s.beginPath(),s.ellipse(-l*.02,-d*.15,l*.36,d*.55,0,Math.PI*1.15,Math.PI*1.85),s.stroke()),p>.25){s.strokeStyle=i?"rgba(20,18,16,0.55)":j(a,-.4),s.lineWidth=Math.max(.6,l*.018),s.beginPath();let u=3+Math.round(p*6);for(let y=0;y<u;y++){let k=(y+.5)/u,S=l*(.36-.72*k),C=d*Math.sqrt(Math.max(0,1-(S/(l*.5))**2));s.moveTo(S,-C*.9),s.lineTo(S-l*.03,-C-l*(.05+.2*p))}s.stroke()}c>.5&&(s.fillStyle=i?"rgba(20,18,16,0.3)":j(a,-.2),s.beginPath(),s.moveTo(l*.5,-d*.3),s.lineTo(l*.62,0),s.lineTo(l*.5,d*.3),s.closePath(),s.fill()),w>.15&&At(s,l*.36,-d*.45,l,w,i)}var Ze=12,et=6,Be=5,Es=45,Ls={frond:[1.5,0,0,0,0,0,0,0,0,0,0,.9],tube:[1,0,.2,0,0,0,.8,0,0,0,0,.9],polyp:[.8,0,0,0,0,0,0,0,.3,0,.8,0],soft:[.9,.5,.1,0,0,0,0,0,0,0,0,0],burrower:[.8,.5,.5,0,0,.1,0,.2,.5,.8,.6,0],shelled:[.8,.4,.1,0,0,.2,.8,.1,0,0,0,0],spiny:[.8,.4,.3,0,0,.2,.5,.8,0,0,0,0],lobopod:[.9,.6,.3,.8,0,.2,0,.6,0,0,0,.3],arthropod:[.8,.7,.8,.9,.1,.8,.7,.1,.2,0,.2,0],swimmer:[.8,.8,.6,0,.9,.5,0,0,0,0,0,.2],radiodont:[1.6,.9,.7,0,.9,.9,.2,0,.9,0,.95,0]},Ws=s=>Ls[H[s].key];function F(s,e=0){let t=(Math.imul(s^2654435769,2246822507)^Math.imul(e+1663821227,3266489909))>>>0;return t^=t>>>15,t=Math.imul(t,739982445)>>>0,t^=t>>>12,(t>>>0)/4294967296}function Is(s,e){let t=parseInt(s.slice(1),16),a=r=>Math.max(0,Math.min(255,Math.round(e<0?r*(1+e):r+(255-r)*e))),o=a(t>>16&255),n=a(t>>8&255),i=a(t&255);return`#${(1<<24|o<<16|n<<8|i).toString(16).slice(1)}`}var Fe=new Map;function tt(s,e){let t=s*16+e,a=Fe.get(t);return a||(a=Is(H[e].color,(F(s,11)-.5)*.36),Fe.size>4e3&&Fe.clear(),Fe.set(t,a)),a}var Rs=(s,e)=>e*Math.pow(Math.max(s,1)/Be,.45),ke=s=>Be*Math.pow(10,s),Oe=class{constructor(e){this.canvas=e,this.ctx=e.getContext("2d"),this.view="sea",this.geometry=null,this.frame=null,this.h=null,this.points=[],this.animals=new Map,this.flashes=[],this.hits=[],this.W=1,this.H=1,this.cx=120,this.zoom=1.6,this.lastFrameAt=0,this.frameGap=300,this.reduced=typeof matchMedia=="function"&&matchMedia("(prefers-reduced-motion: reduce)").matches,this.sprites=new Map,this.snow=Array.from({length:60},(t,a)=>[F(a,1),F(a,2),.4+F(a,3)])}setGeometry(e){this.geometry=e,this.sprites.clear(),this.animals.clear(),this.flashes=[],this.frame=null,this.points=[]}setView(e){this.view=e}resize(){let e=this.canvas.getBoundingClientRect();this.dpr=Math.min(2,window.devicePixelRatio||1),this.W=Math.max(1,e.width),this.H=Math.max(1,e.height),this.canvas.width=Math.round(this.W*this.dpr),this.canvas.height=Math.round(this.H*this.dpr),this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0),this.sprites.clear()}setFrame(e,t,a){let o=typeof performance<"u"?performance.now():0,n=!this.frame||e.step!==this.frame.step;if(n&&this.lastFrameAt&&(this.frameGap=Math.min(600,Math.max(60,o-this.lastFrameAt))),n&&(this.lastFrameAt=o),this.frame=e,this.h=t,this.points=a,!n)return;let i=this.geometry?.W??240,{agents:r,F:g,n:f}=e,w=new Set;for(let b=0;b<f;b++){let p=b*g,m=r[p];w.add(m);let c=r[p+1],l=r[p+2],d=this.animals.get(m);if(!d)d={id:m,x0:c,y0:l,x1:c,y1:l,t0:o,dir:F(m,4)<.5?-1:1,seen:0},this.animals.set(m,d);else{let v=this.posOf(d,o),M=c-v[0];M>i/2&&(M-=i),M<-i/2&&(M+=i),d.x0=c-M,d.y0=v[1],d.x1=c,d.y1=l,d.t0=o,Math.abs(M)>.05&&(d.dir=M>0?1:-1)}d.i=b}for(let[b,p]of this.animals)w.has(b)||this.animals.delete(b);for(let b of e.kills)this.flashes.push({x:b[2],y:b[3],t:o,id:b[1]});this.flashes.length>120&&this.flashes.splice(0,this.flashes.length-120)}posOf(e,t){let a=this.reduced?1:Math.min(1,(t-e.t0)/(this.frameGap*.9)),o=a*a*(3-2*a);return[e.x0+(e.x1-e.x0)*o,e.y0+(e.y1-e.y0)*o]}get ppu(){return(this.W<600?7:8)*this.zoom}get span(){return Math.min(this.geometry?.W??240,this.W/this.ppu)}pan(e){let t=this.geometry?.W??240;this.cx=((this.cx-e/this.ppu)%t+t)%t}zoomBy(e){return this.zoom=Math.min(4,Math.max(1,this.zoom*e)),this.zoom}draw(e){this.ctx.clearRect(0,0,this.W,this.H),this.hits=[],this.view==="plans"?this.drawPlans():this.view==="fossils"?this.drawSlab(e):this.drawSea(e)}layout(){let e=this.H,t=Math.round(e*.8),a=Math.round(e*.26);return{floor:t,back:t-a,band:a,mudTop:t,mudBottom:e}}drawSea(e){let t=this.ctx,{W:a,H:o}=this,n=this.layout(),i=this.geometry??{W:240,cols:48,colW:5,D:6},r=this.span,g=this.cx-r/2,f=u=>{let y=u-g;return y=(y%i.W+i.W)%i.W,y*this.ppu},w=this.reduced?0:e/1e3,b=this.h?this.h.o2:.12,p=t.createLinearGradient(0,0,0,n.back),m=Math.min(1,(b-.12)/.4);p.addColorStop(0,Ct("#2f6b6a","#2b7f9e",m)),p.addColorStop(1,Ct("#123634","#0f3a4d",m)),t.fillStyle=p,t.fillRect(0,0,a,n.back+1),t.save(),t.globalCompositeOperation="lighter";for(let u=0;u<4;u++){let y=(F(u,21)*a+w*6*(u%2?1:-1))%(a+120),k=t.createLinearGradient(0,0,0,n.back);k.addColorStop(0,"rgba(190,240,230,0.10)"),k.addColorStop(1,"rgba(190,240,230,0)"),t.fillStyle=k,t.beginPath(),t.moveTo(y-40,0),t.lineTo(y+10,0),t.lineTo(y+70,n.back),t.lineTo(y-10,n.back),t.fill()}t.restore(),t.fillStyle="rgba(220,240,230,0.35)";for(let[u,y,k]of this.snow){let S=(u*a+w*4*k)%a,C=(y*n.back+w*3*k)%n.back;t.fillRect(S,C,k*1.6,k*1.6)}let c=this.frame?.mat,l=this.frame?.turb,d=t.createLinearGradient(0,n.back,0,n.floor);d.addColorStop(0,"#6d6550"),d.addColorStop(1,"#8a7c5c"),t.fillStyle=d,t.fillRect(0,n.back,a,n.floor-n.back);let v=i.colW*this.ppu;for(let u=0;u<i.cols;u++){let y=c?c[u]:.85,k=f(u*i.colW);if(k>a)continue;if(t.fillStyle=`rgba(92,128,64,${(.15+.75*y).toFixed(3)})`,t.fillRect(k,n.back,v+.5,n.floor-n.back),y>.4){t.strokeStyle=`rgba(48,74,36,${(.5*y).toFixed(3)})`,t.lineWidth=1,t.beginPath();for(let C=0;C<4;C++){let A=n.back+(C+.5)/4*(n.floor-n.back);t.moveTo(k,A);for(let I=1;I<=6;I++)t.lineTo(k+I/6*v,A+Math.sin(u*3+I*2.1+C)*1.4)}t.stroke()}let S=l?Math.min(1,l[u]*1.2):0;if(S>.05){t.fillStyle="rgba(60,46,32,0.55)";let C=Math.round(S*9);for(let A=0;A<C;A++){let I=F(u*31+A,5),B=F(u*31+A,6);t.beginPath(),t.ellipse(k+I*v,n.back+2+B*(n.floor-n.back-4),1.6,1,0,0,Math.PI*2),t.fill()}}}let M=t.createLinearGradient(0,n.mudTop,0,n.mudBottom);M.addColorStop(0,"#5a4936"),M.addColorStop(1,"#2f251b"),t.fillStyle=M,t.fillRect(0,n.mudTop,a,n.mudBottom-n.mudTop);let P=6;t.lineWidth=1;for(let u=0;u<P;u++){let y=n.mudTop+5+u/P*(n.mudBottom-n.mudTop-6);t.strokeStyle=u%2?"rgba(160,140,108,0.22)":"rgba(20,14,8,0.25)",t.beginPath();for(let k=0;k<=a;k+=4){let S=g+k/this.ppu,C=Math.min(i.cols-1,Math.floor((S%i.W+i.W)%i.W/i.colW)),A=l?Math.min(1,l[C]*1.5):0,I=y+A*5*Math.sin(k*.21+u*1.7+F(C,u)*6);k===0?t.moveTo(k,I):t.lineTo(k,I)}t.stroke()}t.strokeStyle="rgba(190,168,128,0.22)",t.lineWidth=1.2;for(let u=0;u<i.cols;u++){let y=l?Math.min(1,l[u]*1.2):0,k=Math.round(y*2.4);if(!k)continue;let S=f(u*i.colW);if(!(S>a))for(let C=0;C<k;C++){let A=S+F(u,40+C)*v,I=(.25+.5*F(u,50+C))*(n.mudBottom-n.mudTop-6),B=5+F(u,60+C)*10;t.beginPath(),t.moveTo(A,n.mudTop),t.quadraticCurveTo(A-2,n.mudTop+I,A+B/2,n.mudTop+I),t.quadraticCurveTo(A+B+2,n.mudTop+I,A+B,n.mudTop),t.stroke()}}if(c)for(let u=0;u<i.cols;u++){let y=f(u*i.colW);y>a||(t.fillStyle=`rgba(110,150,74,${(.2+.8*c[u]).toFixed(3)})`,t.fillRect(y,n.mudTop-1,v+.5,1+3*c[u]))}if(!this.frame)return;this.drawAnimals(e,n,f,r);let E=[];for(let u of this.flashes){let y=(e-u.t)/700;if(y>=1)continue;E.push(u);let k=f(u.x);if(k>a+10)continue;let S=u.y<-.2?n.mudTop+8:u.y>.5?this.waterY(u.y,n):n.floor-.5*n.band;t.strokeStyle=`rgba(255,96,72,${(.85*(1-y)).toFixed(3)})`,t.lineWidth=1.5,t.beginPath(),t.arc(k,S,3+y*9,0,Math.PI*2),t.stroke()}this.flashes=E}waterY(e,t){return t.back-6-Math.min(1,Math.max(0,(e-1)/Es))*(t.back-14)}drawAnimals(e,t,a,o){let n=this.ctx,{W:i}=this,{agents:r,F:g}=this.frame,f=(this.W<600?6.5:7.5)*Math.sqrt(this.zoom),w=this.reduced?0:e/1e3,b=[];for(let d of this.animals.values()){let v=this.posOf(d,e),M=a(v[0]);M<-40||M>i+40||b.push([d,M,v[1]])}let p=this.W<600?380:480,m=b.length>p?p/b.length:1,c=[];for(let d of b){let v=d[0];if(m<1&&F(v.id,9)>m)continue;let M=v.i*g,P=F(v.id,2);c.push([P,v,d[1],d[2],M])}c.sort((d,v)=>v[0]-d[0]),this.shown={drawn:c.length,near:b.length};let l=new Array(Ze);for(let[d,v,M,P,E]of c){for(let V=0;V<Ze;V++)l[V]=r[E+et+V];let u=r[E+4],y=r[E+5],k=1-.35*d,S=Math.max(2.5,Rs(ke(l[0]),f)*k),C=l[1],A;P<-.2?A=t.mudTop+4+Math.min(1,-P/6)*(t.mudBottom-t.mudTop-10):P>.8?A=this.waterY(P,t)-d*6:A=t.floor-d*t.band-(C<.2?0:S*.22);let I=tt(y,u),B=w*(1.2+2*C)+F(v.id,3)*10,N=P>.8&&!this.reduced?Math.sin(B*.7)*1.5:0;n.globalAlpha=1-.35*d,S<6&&C>=.2?(n.fillStyle=I,n.beginPath(),n.ellipse(M,A+N,S/2,Math.max(.9,S*.18),0,0,Math.PI*2),n.fill()):this.sprite(l,y,S,B,I,M,A+N,v.dir),this.hits.push([M,A+N-(C<.2?S*.5:0),Math.max(8,S*.6),v.i])}n.globalAlpha=1}sprite(e,t,a,o,n,i,r,g){let f=this.ctx,w=Math.round(a),b=e[1]<.2,p=8,m=Math.PI*2,c=Math.floor((o%m+m)%m/(m/p)),l=`${t}|${w}|${c}`,d=this.sprites.get(l);if(!d){this.sprites.size>2500&&this.sprites.clear();let v=Math.ceil(w*1.7+10),M=Fs(Math.ceil(v*this.dpr),Math.ceil(v*this.dpr)),P=M.getContext("2d");P.scale(this.dpr,this.dpr);let E=b?v-5:v/2;ge(P,e,v/2,E,w,1,c*(m/p),n,"live"),d={c:M,S:v,ay:E},this.sprites.set(l,d)}g<0?(f.save(),f.translate(i,r),f.scale(-1,1),f.drawImage(d.c,-d.S/2,-d.ay,d.S,d.S),f.restore()):f.drawImage(d.c,i-d.S/2,r-d.ay,d.S,d.S)}drawPlans(){let e=this.ctx,{W:t,H:a}=this,o=this.points,n=this.geometry??{t0:560,t1:500,steps:600},i=t<500?126:160,r=10,g=8,f=22,w=(a-g-f)/H.length,b=d=>i+(n.t0-d)/(n.t0-n.t1)*(t-i-r);e.fillStyle="#10262b",e.fillRect(0,0,t,a),e.fillStyle="rgba(255,255,255,0.035)",e.fillRect(i,g,b(538.8)-i,a-g-f);let p=(d,v=400)=>`${v} ${d}px "Figtree", system-ui, sans-serif`,m=1;for(let d of o)for(let v of d.groups)v>m&&(m=v);let c=this.frame?.fauna??[];for(let d=0;d<H.length;d++){let v=H[d],M=g+(d+.5)*w;if(e.strokeStyle="rgba(255,255,255,0.06)",e.lineWidth=1,e.beginPath(),e.moveTo(i,Math.round(M)+.5),e.lineTo(t-r,Math.round(M)+.5),e.stroke(),o.length){let S=[],C=-9;for(let A=0;A<o.length;A++){let I=b(o[A].ma);if(I-C<1.5&&A<o.length-1)continue;C=I;let B=o[A].groups[d];S.push([I,B>0?Math.max(.8,w*.48*Math.sqrt(B/m)):0])}e.fillStyle=v.color,e.beginPath(),e.moveTo(S[0][0],M);for(let[A,I]of S)e.lineTo(A,M-I);for(let A=S.length-1;A>=0;A--)e.lineTo(S[A][0],M+S[A][1]);e.closePath(),e.fill()}let P=c.find(S=>S.group===d),E=P?P.mean:Ws(d),u=Math.min(w*1.1,t<500?22:30),y=4+u*.55,k=E[1]<.2;e.globalAlpha=P?1:.4,ge(e,E,y,k?M+u*.45:M,u*(k?.75:1),1,.5,v.color,"live"),e.globalAlpha=1,e.fillStyle=P?"#e6efe9":"rgba(230,239,233,0.5)",e.font=p(t<500?10.5:12.5,600),e.textAlign="left",e.textBaseline="middle",e.fillText(v.name,y+u*.6+2,M),this.hits.push([i/2,M,w/2,-1-d,i/2,w/2])}let l=a-f+4;e.fillStyle="rgba(230,239,233,0.7)",e.strokeStyle="rgba(230,239,233,0.4)",e.font=`${t<500?9.5:10.5}px "JetBrains Mono", ui-monospace, monospace`,e.textAlign="center",e.textBaseline="top";for(let d=560;d>=500;d-=10){let v=Math.round(b(d))+.5;e.beginPath(),e.moveTo(v,l-4),e.lineTo(v,l),e.stroke(),e.fillText(String(d),Math.min(t-10,v),l+1)}e.textAlign="right",e.fillText("Ma",i-16,l+1),e.setLineDash([3,3]);for(let[d,v]of[[538.8,"Cambrian"],[518,"Chengjiang"],[508,"Burgess"]]){let M=Math.round(b(d))+.5;e.strokeStyle="rgba(230,239,233,0.35)",e.beginPath(),e.moveTo(M,g),e.lineTo(M,a-f),e.stroke()}if(e.setLineDash([]),o.length){let d=Math.round(b(o[o.length-1].ma))+.5;e.strokeStyle="rgba(255,255,255,0.7)",e.beginPath(),e.moveTo(d,g),e.lineTo(d,a-f),e.stroke()}}drawSlab(e){let t=this.ctx,{W:a,H:o}=this,n=t.createLinearGradient(0,0,a,o);n.addColorStop(0,"#ddd0b2"),n.addColorStop(1,"#c9b791"),t.fillStyle=n,t.fillRect(0,0,a,o);for(let m=0;m<26;m++){t.strokeStyle=m%3?"rgba(120,96,60,0.10)":"rgba(255,250,235,0.18)",t.lineWidth=1+F(m,1)*2;let c=F(m,2)*o;t.beginPath(),t.moveTo(0,c),t.bezierCurveTo(a*.3,c+(F(m,3)-.5)*30,a*.7,c+(F(m,4)-.5)*30,a,c+(F(m,5)-.5)*20),t.stroke()}for(let m=0;m<7;m++){let c=(.08+.15*F(m,7))*Math.max(a,o),l=t.createRadialGradient(F(m,8)*a,F(m,9)*o,0,F(m,8)*a,F(m,9)*o,c);l.addColorStop(0,"rgba(176,112,60,0.18)"),l.addColorStop(1,"rgba(176,112,60,0)"),t.fillStyle=l,t.fillRect(0,0,a,o)}let i=this.frame?.fauna??[],r=a<420?3:a<700?4:6,g=Math.max(2,Math.min(5,Math.floor((o-10)/(a<420?92:104)))),f=i.slice(0,r*g),w=a/r,b=(o-6)/g,p=Math.max(1,...f.map(m=>Math.log10(ke(m.mean[0])/Be)));for(let m=0;m<f.length;m++){let c=f[m],l=m%r,d=Math.floor(m/r),v=(l+.5)*w,M=d*b+b*.44+3,P=c.mean[1]<.2,E=.55+.45*(Math.log10(ke(c.mean[0])/Be)/p),u=Math.min(w*.85,b*(P?.6:1.1))*E;t.save(),t.translate(v,M),t.rotate((F(c.id,1)-.5)*(P?.4:1.2)),ge(t,c.mean,0,P?u*.55:0,u,F(c.id,2)<.5?1:-1,1.3,"#806040","fossil"),t.restore(),t.fillStyle="rgba(52,38,22,0.85)",t.font=`italic 600 ${a<420?10.5:11.5}px "Figtree", system-ui, sans-serif`,t.textAlign="center",t.textBaseline="bottom",t.fillText(c.name,v,d*b+b-2,w-6),this.hits.push([v,M,Math.min(w,b)*.5,-100-c.id])}f.length||(t.fillStyle="rgba(52,38,22,0.8)",t.font='600 13px "Figtree", system-ui, sans-serif',t.textAlign="center",t.textBaseline="middle",t.fillText("No animals yet",a/2,o/2))}hitAt(e,t){let a=null,o=1/0;for(let[b,p,m,c,l,d]of this.hits){if(l!==void 0){if(Math.abs(b-e)<=l&&Math.abs(p-t)<=d)return{kind:"group",group:-1-c};continue}let v=Math.hypot(b-e,p-t);v<Math.max(m,12)&&v<o&&(o=v,a=c)}if(a===null)return null;if(a<=-100){let b=-100-a,p=(this.frame?.fauna??[]).find(m=>m.id===b);return p?{kind:"species",species:p}:null}if(a<0)return{kind:"group",group:-1-a};let{agents:n,F:i}=this.frame,r=a*i,g=Array.from(n.subarray(r+et,r+et+Ze)),f=n[r+5];return{kind:"animal",species:(this.frame.fauna??[]).find(b=>b.id===f)??{id:f,name:We(f),group:n[r+4],count:null,mean:g},traits:g}}};function Fs(s,e){if(typeof OffscreenCanvas<"u")return new OffscreenCanvas(s,e);let t=document.createElement("canvas");return t.width=s,t.height=e,t}function Ct(s,e,t){let a=parseInt(s.slice(1),16),o=parseInt(e.slice(1),16),n=i=>Math.round((a>>i&255)+((o>>i&255)-(a>>i&255))*t);return`rgb(${n(16)},${n(8)},${n(0)})`}function Bs(s,e,t,a){s.fillText(e>=1?String(Math.round(e)):String(e),t,a)}var Pt=[{id:"species",title:"Species alive",min:0,max:400,ticks:[0,200,400],series:[{key:"species",color:"species",width:2}]},{id:"disparity",title:"Disparity: how different the bodies are",min:0,max:1.2,ticks:[0,.5,1],series:[{key:"disparity",color:"ink",width:2}]},{id:"shares",title:"Share of animals",min:0,max:1,pct:!0,ticks:[0,.5,1],series:[{key:"armour",color:"armour",width:1.8,label:"skeleton"},{key:"eyes",color:"eye",width:1.8,label:"eyes"},{key:"carn",color:"hunter",width:1.8,label:"hunters"},{key:"burrow",color:"burrow",width:1.8,label:"diggers"}]},{id:"size",title:"Length, cm",log:!0,min:.3,max:200,ticks:[1,10,100],series:[{key:"bigPred",color:"hunter",width:2,scale:.1,label:"biggest hunter",when:s=>s.bigPred>0},{key:"meanL",color:"ink3",width:1.5,scale:.1,label:"typical animal"}],bands:[{from:30,to:40,label:"Anomalocaris"}]},{id:"world",title:"Sea and sea floor",min:0,max:1,pct:!0,ticks:[0,.5,1],series:[{key:"mat",color:"mat",width:2,label:"floor under mats"},{key:"o2",color:"oxygen",width:2,label:"oxygen, of today’s"}]}],Os=[{ma:538.8,label:"Cambrian"},{ma:518,label:"Chengjiang"},{ma:508,label:"Burgess"}],q={left:40,right:10,title:18,gap:10,axis:34},He=class{constructor(e){this.canvas=e,this.ctx=e.getContext("2d"),this.points=[],this.t0=560,this.t1=500,this.steps=600,this.cursor=null,this.W=0,this.H=0}setRange(e){this.t0=e.t0,this.t1=e.t1,this.steps=e.steps}resize(){let e=this.canvas.getBoundingClientRect(),t=Math.min(2,window.devicePixelRatio||1);this.W=Math.max(1,e.width),this.H=Math.max(1,e.height),this.canvas.width=Math.round(this.W*t),this.canvas.height=Math.round(this.H*t),this.ctx.setTransform(t,0,0,t,0,0);let a=Pt.length,o=(this.H-q.axis)/a,n=o-q.title-q.gap;this.boxes=Pt.map((i,r)=>({panel:i,y:r*o+q.title,h:n}))}x(e){return q.left+e/this.steps*(this.W-q.left-q.right)}xMa(e){return this.x((this.t0-e)/((this.t0-this.t1)/this.steps))}stepAt(e){let t=(e-q.left)/(this.W-q.left-q.right);return Math.round(Math.min(1,Math.max(0,t))*this.steps)}pointAt(e){let t=this.points;if(!t.length)return null;let a=Math.min(t.length-1,Math.max(0,e-t[0].step));for(;a>0&&t[a].step>e;)a--;for(;a<t.length-1&&t[a+1].step<=e;)a++;return t[a]}draw(e){let t=this.ctx,{W:a,H:o}=this;if(!this.boxes)return;t.clearRect(0,0,a,o);let n=this.points,i=q.left,r=a-q.right,g=(c,l=400)=>`${l} ${c}px "Figtree", system-ui, sans-serif`,f=c=>`${c}px "JetBrains Mono", ui-monospace, monospace`,w=this.boxes[0].y,b=this.boxes[this.boxes.length-1].y+this.boxes[this.boxes.length-1].h;for(let c of this.boxes){let l=c.panel,d=v=>{let M=l.log?(Math.log10(Math.max(v,l.min))-Math.log10(l.min))/(Math.log10(l.max)-Math.log10(l.min)):(v-l.min)/(l.max-l.min);return c.y+c.h-Math.min(1,Math.max(0,M))*c.h};t.fillStyle=e.plot,t.fillRect(i,c.y,r-i,c.h);for(let v of l.bands??[]){let M=d(Math.min(v.to,l.max)),P=d(Math.max(v.from,l.min));t.fillStyle=e.ref,t.fillRect(i,M-1,r-i,P-M+2),t.fillStyle=e.ink3,t.font=g(9.5),t.textAlign="left",t.textBaseline="bottom",t.fillText(v.label,i+4,M-1)}t.strokeStyle=e.line,t.lineWidth=1,t.font=f(9.5),t.textAlign="right",t.textBaseline="middle";for(let v of l.ticks){let M=Math.round(d(v))+.5;t.beginPath(),t.moveTo(i,M),t.lineTo(r,M),t.stroke(),t.fillStyle=e.ink3,l.log?Bs(t,v,i-5,M):t.fillText(l.pct?`${Math.round(v*100)}%`:String(v),i-5,M)}t.save(),t.beginPath(),t.rect(i,c.y-2,r-i,c.h+4),t.clip();for(let v of l.series){if(!n.length)continue;t.beginPath();let M=-9,P=!1;for(let E=0;E<n.length;E++){let u=n[E],y=u[v.key]*(v.scale??1);if(v.when&&!v.when(u)||!Number.isFinite(y)){P=!1;continue}let k=this.x(u.step);if(P&&k-M<1&&E<n.length-1)continue;M=k;let S=d(y);P?t.lineTo(k,S):t.moveTo(k,S),P=!0}t.strokeStyle=e[v.color],t.lineWidth=v.width??1.6,t.lineJoin="round",t.stroke()}if(t.restore(),t.font=g(11.5,700),t.textAlign="left",t.textBaseline="alphabetic",t.fillStyle=e.ink2,t.fillText(l.title,i,c.y-6),l.series.length>1){let v=i+t.measureText(l.title).width+10;t.font=g(10.5,600);for(let M of l.series){let P=t.measureText(M.label).width;if(v+P+12>r)break;t.fillStyle=e[M.color],t.fillRect(v,c.y-11,8,3),t.fillText(M.label,v+11,c.y-6),v+=P+22}}}t.font=g(9.5,600),t.textAlign="center",t.textBaseline="top";for(let c of Os){let l=Math.round(this.xMa(c.ma))+.5;t.strokeStyle=e.ink3,t.setLineDash([2,3]),t.lineWidth=1,t.beginPath(),t.moveTo(l,w),t.lineTo(l,b),t.stroke(),t.setLineDash([]),t.fillStyle=e.ink2,t.fillText(c.label,l,b+18)}let p=b+4;t.strokeStyle=e.ink3,t.fillStyle=e.ink3,t.font=f(10),t.textAlign="center",t.textBaseline="top";let m=a<420?20:10;for(let c=this.t0;c>=this.t1;c-=5){let l=Math.round(this.xMa(c))+.5;t.beginPath(),t.moveTo(l,p-4),t.lineTo(l,p-1),t.stroke(),(this.t0-c)%m===0&&t.fillText(String(c),Math.min(l,a-12),p)}if(t.textAlign="left",t.font=g(9.5),t.fillText("Ma",2,p),n.length){let c=Math.round(this.x(n[n.length-1].step))+.5;t.strokeStyle=e.ink2,t.setLineDash([2,3]),t.beginPath(),t.moveTo(c,w),t.lineTo(c,b),t.stroke(),t.setLineDash([])}if(this.cursor!==null&&n.length){let c=Math.round(this.x(this.cursor))+.5;t.strokeStyle=e.ink,t.lineWidth=1,t.beginPath(),t.moveTo(c,w),t.lineTo(c,b),t.stroke()}}};var Et=s=>s.replace(/^-/,"−");function ie(s,e=2){if(!Number.isFinite(s))return"–";if(s===0)return"0";let t=Math.abs(s),a=Math.floor(Math.log10(t)),o=Number(s.toPrecision(e));return Et(o.toLocaleString("en-US",{maximumFractionDigits:Math.max(0,e-1-a)}))}var G=s=>Number.isFinite(s)?Et(Math.round(s).toLocaleString("en-US")):"–";function R(s){return Number.isFinite(s)?s>0&&s<.005?"under 1 %":`${Math.round(s*100)} %`:"–"}function se(s){return!Number.isFinite(s)||s<=0?"–":s<10?`${ie(s,2)} mm`:s<1e3?`${ie(s/10,(s<100,2))} cm`:`${ie(s/1e3,2)} m`}function ze(s){return String(s).replace(/[&<>"]/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[e])}var ae=[{id:"garden",title:"The Ediacaran garden",body:["We start 560 million years ago, in the [Ediacaran]. Animals have been around for tens of millions of years, but they look nothing like the ones we know. Tall [fronds|frond] stand on the sea floor, soaking up food from the water. Soft, flat animals like Kimberella creep over a skin of microbes, the [microbial mat|mat], and graze it. A few small worms wriggle just under its surface.","None of them has a shell, a leg, a jaw or an eye. Each animal in the model carries twelve numbers, its [traits|trait]: size, how it moves, segments, legs, swimming flaps, eyes, skeleton, spines, jaws, digging, hunting and filter feeding. Every body you see is drawn from those numbers."],predict:{q:"Look at this sea floor. What is missing that you would find in almost any sea today?",options:[{text:"Animals that eat other animals",right:!0},{text:"Animals that eat microbes"},{text:"Animals that live fixed to the floor"}],explain:"There are no [predators|predator] yet. Ediacaran animals fed on the mats, on dissolved food or on [plankton] in the water, and very few Ediacaran fossils show any sign of being bitten. In the model, any animal can evolve a taste for others: watch for the red flashes that mark a kill."},show:{steps:[{step:14,speed:1}],view:"sea",highlight:"species"},look:"Green-grey fronds stand on the floor, soft crawlers graze the olive mat and worms lie in the cut through the mud below. Drag the picture sideways to look along the 12 m of sea floor, and tap any animal to meet its species."},{id:"hunters",title:"The first hunters",body:["Some time before 550 million years ago, animals began to eat each other. The oldest evidence is small round holes drilled through the tubes of [Cloudina], one of the first animals with a hard skeleton.","In the model a hunter catches what it can find and swallow. It finds prey within its range of senses, which eyes make much longer. It can swallow only prey that fits its mouth: jaws make the mouth bigger, spines make the prey harder to swallow. And a skeleton makes a catch fail more often."],predict:{q:"Hunters appear in a world of soft animals. What is the cheapest way for small prey to stay alive?",options:[{text:"Grow a shell"},{text:"Dig into the mud, or stay too small to be worth finding",right:!0},{text:"Swim away fast"}],explain:"Before about 542 million years ago, a mineral [skeleton] costs the model’s animals twice what it costs later, because sea water held less calcium. Swimming needs oxygen there is not yet enough of. Digging is the way out, and so is being tiny: a hunter often misses prey much smaller than itself. In the rocks, [burrows|burrow] grow more common and go deeper just at this time."},show:{steps:[{step:60,speed:1}],view:"sea",highlight:"hunters"},look:"Each red ring is an animal being eaten. The narrator and the list under the charts tell you when the first hunters appeared and how big the biggest one is."},{id:"mats",title:"Digging up the mats",body:["Burrowers do more than hide. As they dig for buried food, they churn the mud and break up the microbial mats that held the Ediacaran sea floor together. Geologists call this the [agronomic revolution], or the Cambrian substrate revolution: the first ploughing of the sea floor.","The start of the Cambrian, 538.8 million years ago, is defined by a burrow: the first appearance of [Treptichnus] pedum, a branching tunnel dug by a worm-like animal."],predict:{q:"Diggers spread through the mud. What happens to the microbial mats?",options:[{text:"They grow thicker on the churned mud"},{text:"They break up and cover less of the floor",right:!0},{text:"Nothing: the mats are on top, the diggers below"}],explain:"A mat grows only on a quiet surface. Diggers stir it into the mud, and the grazers that lived on it and the fronds that stood in it lose their world. In the model the mats fall from covering about 90 % of the floor to about half, and the old Ediacaran fronds disappear soon after."},show:{steps:[{step:250,speed:2}],view:"sea",highlight:"mat"},look:"The olive skin on the floor is the mat. In the cut below, smooth layers of mud are broken up where diggers work. Compare a stretch with many worms in the mud to one with few."},{id:"armour",title:"Armour",body:["Shells, plates and spines appear at the start of the Cambrian as the [small shelly fossils|ssf]: tubes, cones and scales a few millimetres long, from 538 million years ago on. Within 20 million years most of the big groups of animals with skeletons had appeared.","A skeleton is costly to build and heavy to carry. It makes slow animals slower. It only pays when there are enough hunters around, and it gets cheaper when sea water holds more calcium, as it did in the early Cambrian."],predict:{q:"In this run, hunters were common for 25 million years before skeletons spread. Why the wait?",options:[{text:"Skeletons cost too much until sea water changed and hunters grew common enough",right:!0},{text:"Skeletons need eyes first"},{text:"The hunters were too small to matter"}],explain:"Both parts matter in the model. The cost of a mineral skeleton halves between 560 and 542 million years ago, and armour only pays when the chance of meeting a hunter is high. In this run skeletons spread around 532 million years ago. Real ones show up first in Cloudina at 550 million years ago and spread with the small shelly fossils from 538."},show:{steps:[{step:320,speed:2}],view:"sea",highlight:"armour"},look:"Golden domes are shelled crawlers, like the first molluscs; spiky orange ones are like Wiwaxia and Halkieria. The share of animals with a skeleton is under the picture."},{id:"eyes",title:"Eyes",body:["An eye cup, a patch of light-sensitive cells in a pit, tells an animal where light and shadow come from. Add a [lens], and it sees shapes: a hunter can now spot prey from a distance, and prey can see a hunter coming. The oldest known [compound eyes|compound eye], on early trilobites, are about 530 to 520 million years old.","Andrew Parker’s [light switch] idea says the first good eyes started the whole arms race: once animals could see, soft and slow became dangerous, and armour, speed and spines followed."],predict:{q:"If eyes really came first and caused the rest, what should the fossils show?",options:[{text:"Eyes first, then skeletons",right:!0},{text:"Skeletons first, then eyes"},{text:"Both at exactly the same time"}],explain:"Eyes first. But the record shows skeletons first: Cloudina at 550 million years ago, the small shelly fossils from 538, and the first eyes some ten million years later. In this run too, skeletons spread around 532 million years ago and lenses about ten million years later. The Lab’s Eyes first setting starts the animals with eye spots and cheap eyes: then the order flips, as Parker’s idea predicts."},show:{steps:[{step:400,speed:2}],view:"sea",highlight:"eyes"},look:"Animals with good eyes have a big dark eye on a stalk. Watch the eyes readout climb while the skeleton readout is already high."},{id:"arms",title:"The arms race and the arthropods",body:["Now every advance on one side pays the other side to answer it. Jaws beat thin shells; thicker shells beat jaws; eyes find prey that hides; digging hides from eyes. Biologists call this [escalation], or an evolutionary [arms race].","One body plan did especially well: the [arthropods|arthropod], with a jointed skeleton over a body of repeated segments, legs on the segments and, soon, compound eyes. Armour that still lets you walk.","Each new body part needs a region of the body to grow in, and regions are set up by [Hox genes|hox]. In the model, an animal with more kinds of parts than Hox genes pays for it, and new Hox genes come rarely. This is the model’s nod to [evo-devo|evodevo]."],predict:{q:"Which kind of animal do you expect to have the most species by the time of the Burgess Shale?",options:[{text:"Soft crawlers"},{text:"Arthropods",right:!0},{text:"Fronds"}],explain:"Arthropods. They are the biggest group in both the Chengjiang and the Burgess Shale faunas, about a third of the species, and they still are today. In this run they become the richest group too. Body plans in the model are not chosen in advance: a species counts as an arthropod when its average animal has legs and segments."},show:{steps:[{step:450,speed:2}],view:"plans",highlight:"disparity"},look:"Each spindle shows how many species of one body plan are alive, through time. The Ediacaran groups at the top thin out, and the Cambrian ones below swell after 538 million years ago."},{id:"burgess",title:"Chengjiang and the Burgess Shale",body:["Most of what we know about Cambrian animals comes from a few places where soft bodies were preserved: [Chengjiang] in China, 518 million years old, and the [Burgess Shale] in Canada, 508 million years old. There we find Anomalocaris, a [radiodont] up to about 40 cm long, five-eyed Opabinia, spiky Hallucigenia, and dozens of arthropods like Marrella.","Many of them looked so strange that their discoverers could not place them in any living group."],predict:{q:"Most Burgess Shale animals had no hard parts. Why do we have their fossils at all?",options:[{text:"They were buried fast in fine mud with little oxygen, so they did not rot",right:!0},{text:"They were frozen in ice"},{text:"They had skeletons we cannot see"}],explain:"Underwater mudslides buried them alive, in mud so fine and so short of oxygen that they did not rot or get dug up. Their bodies were pressed into thin films that keep even legs, guts and gills. Without such places, the Cambrian would look like a world of shells."},show:{steps:[{step:520,speed:2}],view:"fossils",highlight:"bigPred"},look:"The slab shows the commonest species alive now, flattened into fossils. Tap one to see the animal it was."},{id:"oxygen",title:"Was it the oxygen?",body:["Oxygen in the sea rose through the late Ediacaran and early Cambrian, though how much and when is still debated. Active bodies need it: swimming, digging, hunting and running big eyes and brains all burn oxygen fast.","In the model, oxygen rises from about an eighth of today’s level to about half. An animal whose body needs more oxygen than the water can give pays heavily for it."],predict:{q:"Keep oxygen at Ediacaran levels and run history again. What happens?",options:[{text:"The explosion happens on time anyway"},{text:"It is held back: less varied bodies, and the mats survive",right:!0},{text:"Every animal dies"}],explain:"Without more oxygen, diggers and hunters stay few and small, so the mats survive and the arms race never gets going properly. Oxygen does not make the explosion happen by itself, but too little of it holds it back. Sperling and colleagues have argued just this: that low oxygen kept early animals from becoming active predators."},show:{scenario:"lowOxygen",steps:[{step:350,speed:2}],view:"plans",highlight:"mat"},look:"This is the low-oxygen world at 525 million years ago. Compare it with the default run: hunters and diggers are rare, the mats still cover most of the floor, and the old fronds are still standing. Look at the Hunters, Diggers and Mats numbers."},{id:"tape",title:"Replaying the tape",body:["In Wonderful Life (1989), Stephen Jay Gould asked what would happen if we could rewind the tape of life to the Cambrian and play it again. He thought the result would be completely different: which groups survived was largely luck, or [contingency].","Simon Conway Morris answered that the same solutions keep evolving anyway: eyes, armour, jaws and legs have each evolved many times ([convergence]). The model lets you try. Every run starts from the same world; only the roll of the dice, the [seed], changes."],predict:{q:"Run the same world again with a different seed. What do you expect?",options:[{text:"Exactly the same animals, at the same times"},{text:"The same kinds of answer, but with different winners and dates",right:!0},{text:"No explosion at all"}],explain:"Both Gould and Conway Morris are partly right in the model. Hunters, diggers, skeletons and eyes come back in every run, and hunters always come before skeletons. But the dates shift by millions of years, sharp eyes beat skeletons in about half the runs, and the winning body plan changes: across 20 other seeds, arthropods are the richest group at Burgess Shale time in 10. The Validation tab gives the numbers."},show:{seed:"hallucigenia",steps:[{step:520,speed:3}],view:"plans",highlight:"species"},look:"This is the seed called hallucigenia, at Burgess Shale time. Hunters, diggers, skeletons and eyes all came back, but this time the lobopods, Hallucigenia’s group, out-number the arthropods. In the Lab you can try any seed you like."},{id:"sure",title:"How sure are we?",body:["The order of events in the model matches the fossil record well: hunters, then digging, then skeletons, then eyes, then the arthropods and big predators. Why it happened is still argued over. Oxygen, sea-water chemistry, the arms race, new genes and the end of the mats each have their champions, and most researchers think several acted together.","The model is a toy. Three thousand animals on a 12 m strip stand for whole oceans; twelve traits stand for whole bodies; and many of its numbers were tuned so the run looks like the record. [Molecular clocks|clock] also suggest that animal groups split from each other long before they show up as fossils, which a model that starts at 560 million years ago cannot show. The Validation tab sets the results beside the fossils and says which numbers were tuned."],show:{tab:"check"}}],st={ediacaran:["Ediacaran","The last period before the Cambrian, from 635 to 538.8 million years ago. Its seas held the first large animals, mostly soft and many unlike anything alive today."],cambrian:["Cambrian","The period from 538.8 to about 485 million years ago, when most of the big groups of animals first appear as fossils."],frond:["Frond","A leaf-shaped Ediacaran animal, like Charnia or Rangea, built from branches that branch again in the same pattern. It stood on the floor on a disc and took in food from the water."],mat:["Microbial mat","A thin, tough skin of microbes covering the sea floor. Before burrowers, mats covered most shallow sea floors and held the mud together."],trait:["Trait","Here: one of the twelve numbers each animal in the model carries, from 0 to 1 except size. Offspring inherit them, with small random changes."],predator:["Predator","An animal that hunts and eats other animals. The model calls them hunters."],plankton:["Plankton","Tiny living things drifting in the water. Filter feeders like fronds and tube builders strain them out."],cloudina:["Cloudina","A small animal of about 550 million years ago that built a tube of stacked mineral funnels, one of the first skeletons. Some tubes have bore holes drilled by a predator."],skeleton:["Skeleton","Here: any hard mineral part, like a shell, plates or scales, made of calcium carbonate or calcium phosphate."],burrow:["Burrow","A tunnel dug into the sediment. Burrows can fossilize as trace fossils even when the animal that dug them does not."],"agronomic revolution":["Agronomic revolution","Seilacher’s name for the change around the start of the Cambrian when burrowing animals began to churn up the sea floor, breaking the microbial mats."],treptichnus:["Treptichnus pedum","A branching burrow trace fossil. Its first appearance, 538.8 million years ago, marks the start of the Cambrian."],ssf:["Small shelly fossils","Tiny tubes, cones, plates and spines, mostly a few mm long, found in rocks from the start of the Cambrian. Many are pieces of the armour of larger animals."],lens:["Lens","A clear part of an eye that focuses light, so that the eye sees an image and not just light and shade."],"compound eye":["Compound eye","An eye made of many small units, each with its own lens, as in insects and crabs. Trilobites had them, and Anomalocaris had more than 16,000 lenses in each eye."],"light switch":["Light switch hypothesis","Andrew Parker’s idea (2003) that the first eyes able to form images set off the Cambrian explosion."],escalation:["Escalation","Geerat Vermeij’s name for the long trend of predators getting better at attacking and prey better at defence."],"arms race":["Arms race","A back-and-forth in which each side evolves in answer to the other: better weapons, better armour, and so on."],arthropod:["Arthropod","An animal with a jointed outer skeleton over a segmented body with jointed legs: trilobites, crabs, insects, spiders and their kin."],trilobite:["Trilobite","An arthropod with a three-lobed shield, compound eyes and many legs. Trilobites appear about 521 million years ago and lasted almost 300 million years."],lobopod:["Lobopod","A soft, worm-like animal with pairs of stubby legs, like Hallucigenia or Aysheaia. Lobopods are close to the ancestors of arthropods."],radiodont:["Radiodont","A swimming arthropod relative with two grasping arms in front of the mouth, like Anomalocaris. The biggest predators of the Cambrian."],hox:["Hox genes","Genes that tell each part of an animal’s body, along its length, what it is. More regions can carry more kinds of parts. Most animal groups had Hox genes before the Cambrian."],evodevo:["Evo-devo","Evolutionary developmental biology: the study of how changes in the way bodies grow, and in the genes that steer growth, produce new kinds of body."],chengjiang:["Chengjiang","A fossil site in Yunnan, China, 518 million years old, with thousands of soft-bodied fossils, including some of the first fish-like animals."],"burgess shale":["Burgess Shale","A fossil site in the Rocky Mountains of Canada, 508 million years old, found by Charles Walcott in 1909. Its soft-bodied fossils made the Cambrian explosion famous."],disparity:["Disparity","How different the body plans in a group are from each other, as against diversity, which counts species. In the model, the spread of the species’ average traits."],"body plan":["Body plan","The basic layout of an animal’s body: its symmetry, segments, limbs, skeleton and so on. The model sorts species into eleven body plans by their traits."],contingency:["Contingency","The idea that history depends on chance events, so that a replay could turn out differently."],convergence:["Convergence","The same solution evolving more than once, separately: eyes, for example, have evolved dozens of times."],seed:["Seed","The word that sets all the model’s dice rolls. The same seed and settings always give the same run."],clock:["Molecular clock","Dating when two groups split by how much their DNA differs. Clocks suggest animal groups diverged tens of millions of years before they appear as fossils."],species:["Species","Here: a lineage of animals. A new species begins when an animal has drifted far enough in its traits from the first member of its species."],ma:["Ma","Million years ago (mega-annum)."]};function De(s){return ze(s).replace(/(\(?)\[([^\]|]+)(?:\|([^\]]+))?\]([)’.,;:!?]*)/g,(e,t,a,o,n)=>{let r=`<button type="button" class="term" data-term="${o??a.toLowerCase()}">${a}</button>`;return t||n?`<span class="nw">${t}${r}${n}</span>`:r})}var at=[{key:"species",label:"Species",unit:s=>`${s.nGroups} body plans`,value:s=>G(s.species)},{key:"disparity",label:"Disparity",unit:"how different",value:s=>ie(s.disparity,2)},{key:"hunters",label:"Hunters",unit:"of animals",value:s=>R(s.carn)},{key:"diggers",label:"Diggers",unit:"live in the mud",value:s=>R(s.burrow)},{key:"armour",label:"Skeletons",unit:"of animals",value:s=>R(s.armour)},{key:"eyes",label:"Eyes",unit:s=>`with lenses: ${R(s.lens)}`,value:s=>R(s.eyes)},{key:"bigPred",label:"Biggest hunter",short:"Top hunter",unit:"Anomalocaris: 40 cm",value:s=>s.bigPred>0?se(s.bigPred):"none"},{key:"mat",label:"Mats",unit:s=>`oxygen: ${R(s.o2)} of today`,value:s=>R(s.mat)}],U=(s,e)=>`<button type="button" class="term" data-term="${s}">${e}</button>`;function Wt(s){let e=0;for(let t=1;t<s.groups.length;t++)s.groups[t]>s.groups[e]&&(e=t);return H[e]}function It(s,e){switch(s){case"species":{let t=Wt(e);return{title:"Species and body plans",value:`${G(e.species)} species in ${e.nGroups} body plans`,html:[`${G(e.n)} animals are alive in the model, in ${G(e.species)} ${U("species","species")}. The richest ${U("body plan","body plan")} is ${t.name.toLowerCase()} (like ${t.like}), with ${G(e.groups[H.indexOf(t)])} species.`,"A new species starts when an animal has drifted far enough in its traits from the first member of its own species. Each species is then sorted into a body plan by what its average animal has, the way a palaeontologist sorts fossils by their parts.","The number of species stays within a few hundred: the 12 m of sea floor can feed only so many animals. What changes most is not how many species there are but how different they are: see disparity."],chart:"species"}}case"disparity":return{title:"Disparity",value:ie(e.disparity,2),html:[`${U("disparity","Disparity")} measures how different the species’ bodies are, not how many species there are. Here it is the spread of the species’ average traits, added up over all twelve.`,"Palaeontologists measure it from fossil shapes. Briggs, Fortey and Wills found in 1992 that Cambrian arthropods were already about as varied in form as living ones: the explosion was above all an explosion of disparity.","In the model disparity starts fairly high, because fronds and worms differ a lot, drops as the soft crawlers take over, and then climbs to more than four times its Ediacaran level as body plans multiply."],chart:"disparity"};case"hunters":return{title:"Hunters",value:R(e.carn),html:[`${R(e.carn)} of animals are hunters: they move, and they get most of their food by eating other animals.`,"A hunter can catch prey it can sense and swallow. Eyes stretch its range, jaws widen its mouth and help break shells, and a bigger body helps on both counts. Every catch is a gamble: a skeleton, spines, digging and plain small size each make it fail more often.","Hunters cannot become too common. When there are many, prey runs short and they get in each other’s way, so their numbers rise and fall with their prey."],chart:"shares"};case"diggers":return{title:"Diggers",value:R(e.burrow),html:[`${R(e.burrow)} of animals live mostly in the mud. Digging hides an animal from hunters and reaches food buried in the sediment.`,`It costs a lot of energy and oxygen, and it churns up the ${U("mat","microbial mats")}. Real burrows got deeper and more complex across the start of the Cambrian: the ${U("agronomic revolution","agronomic revolution")}.`],chart:"shares"};case"armour":return{title:"Skeletons",value:R(e.armour),html:[`${R(e.armour)} of animals have a mineral ${U("skeleton","skeleton")}: a shell, plates or a tube.`,"A skeleton makes many attacks fail, but it costs energy to build and carry, and it slows down an animal unless its body is segmented and jointed. In the model it costs twice as much before 552 million years ago as after 542, standing for the rise of calcium in sea water.",`Real skeletons first appear in ${U("cloudina","Cloudina")}, about 550 million years ago, and spread with the ${U("ssf","small shelly fossils")} from 538.`],chart:"shares"};case"eyes":return{title:"Eyes",value:`${R(e.eyes)}, with lenses ${R(e.lens)}`,html:[`${R(e.eyes)} of animals have eyes of some kind, and ${R(e.lens)} have eyes good enough to see shapes, with a ${U("lens","lens")}.`,"In the model an eye stretches how far an animal can sense: a hunter finds more prey, and prey gets warning of hunters. It costs energy and some oxygen, for the eye and the brain behind it.",`The oldest known ${U("compound eye","compound eyes")} belong to trilobites about 530 to 520 million years old. By 513 million years ago Anomalocaris had eyes with more than 16,000 lenses each.`],chart:"shares"};case"bigPred":return{title:"The biggest hunter",value:e.bigPred>0?se(e.bigPred):"none yet",html:[e.bigPred>0?`The longest hunter alive now is ${se(e.bigPred)} long. A typical animal is about ${se(e.meanL)}.`:"No animal hunts yet.",`Most Cambrian animals were small, from a few millimetres to a few centimetres. The giants were ${U("radiodont","radiodonts")}: Anomalocaris canadensis of the Burgess Shale grew to about 40 cm.`,"In the model a bigger body sees further and swallows more, but needs more food, more oxygen and longer to grow up and breed."],chart:"size"};case"mat":return{title:"Mats and oxygen",value:`mats ${R(e.mat)}, oxygen ${R(e.o2)} of today`,html:[`${U("mat","Microbial mats")} cover ${R(e.mat)} of the sea floor. They regrow quickly where they are left alone, and are grazed and churned up by animals.`,`Oxygen in the water is ${R(e.o2)} of today’s level. It rises through the run, from about an eighth to about half of today’s, following rough estimates for the shallow sea. Swimming, digging, hunting and eyes all need it.`],chart:"world"};default:return null}}function Rt(s){let e=(a,o)=>`<button type="button" class="num" data-explain="${a}">${o}</button>`,t=Wt(s);return s.carn<.02?`The ${s.ma>538.8?"Ediacaran":"Cambrian"} sea floor: fronds filter the water and soft animals graze the mats, which cover ${e("mat",R(s.mat))} of the floor. Nobody eats anybody yet.`:s.armour<.03&&s.lens<.03?`Hunters, ${e("hunters",R(s.carn))} of the animals, roam a world without shells. Prey survive by being small or by digging: ${e("diggers",R(s.burrow))} of animals live in the mud, and the mats are down to ${e("mat",R(s.mat))}.`:s.lens<.03?`Skeletons spread: ${e("armour",R(s.armour))} of animals now carry shells or plates. Eyes are still rare (${e("eyes",R(s.eyes))}), and the hunters mostly find prey by touch and smell.`:s.ma>509?`An arms race: ${e("armour",R(s.armour))} of animals have skeletons and ${e("eyes",R(s.eyes))} have eyes. ${e("species",G(s.species))} species in ${s.nGroups} body plans; the richest are ${t.name.toLowerCase()}.`:`Burgess Shale time: ${e("species",G(s.species))} species in ${s.nGroups} body plans, ${t.name.toLowerCase()} the richest. The biggest hunter is ${e("bigPred",se(s.bigPred))} long.`}var ve=[{key:"sea",label:"Sea floor"},{key:"plans",label:"Body plans"},{key:"fossils",label:"Fossils"}],Ft={sea:["A slice of the model’s sea floor, seen from the side, with the water above and a cut through the mud below. The whole strip is 12 m long; drag sideways to move along it, and use + and − to zoom.","Every animal is drawn from its own traits: segments, legs, swimming flaps, eyes, shells, spines, grasping arms. Its colour shows its body plan, with each species a slightly different shade. Tap one to meet its species.","Sizes are squeezed so that both 5 mm worms and 1 m fronds fit: an animal ten times longer is drawn about three times longer. When the window holds very many animals, a fixed sample of them is drawn.","The olive skin on the floor is the microbial mat; dark specks and broken layers in the mud show where diggers have churned it. A red ring is an animal being eaten. The water grows clearer and bluer as oxygen rises."],plans:["Each row is one body plan, and its spindle shows how many species of it were alive, from 560 million years ago on the left to now. The wider the spindle, the more species (the width grows with the square root, so small groups stay visible).","This is the kind of diagram Stephen Jay Gould drew for the Burgess Shale. The drawing next to each name is the commonest species of that body plan alive now, or a typical one, faded, when it has none.","Dashed lines mark the start of the Cambrian (538.8 million years ago), the Chengjiang fossils (518) and the Burgess Shale (508). The shaded part is the Ediacaran."],fossils:["The commonest species alive now, drawn as fossils pressed flat in fine mud, like the soft-bodied fossils of Chengjiang. Each is named, in the style of Burgess Shale names, and the largest are drawn biggest.","Tap a fossil to see the animal it was: its body plan, its size and its traits."]},Bt=["The model follows up to 3,000 animals on a 12 m strip of shallow sea floor, from 560 to 500 million years ago, in steps of 100,000 years. Each animal has twelve traits and a number of Hox genes. It eats by grazing mats, digging up buried food, filtering plankton or hunting; it pays for each trait in energy, and for an active body in oxygen; it breeds when it has stored enough energy, and its offspring inherit its traits with small random changes.","Hunting is where the arms race comes from. A hunter finds prey it can sense, eyes make that range longer, and it can swallow only prey that fits its mouth. Skeletons, spines, digging and small size make attacks fail. Oxygen and the cost of making a skeleton change through the run, following rough estimates for the real oceans.","It is a toy model. Real oceans held billions of animals; the model holds thousands. Twelve traits stand for whole bodies, species and body plans are sorted by simple rules, and many constants were tuned so that the default run looks like the fossil record. It shows how hunters, prey, mud and oxygen push on each other, not exactly what happened."];var Hs=typeof D=="object"?D:null,T=s=>document.getElementById(s),L=ze,zs=["0.2 Myr/s","0.6 Myr/s","2 Myr/s","Fastest"],Nt=1,ye=window.matchMedia("(min-width: 1040px)"),Ds=window.matchMedia("(prefers-reduced-motion: reduce)"),me=(s,e="start")=>s?.scrollIntoView?.({behavior:Ds.matches?"auto":"smooth",block:e}),Z={get(s,e){try{let t=window.localStorage.getItem(`cam:${s}`);return t===null?e:JSON.parse(t)}catch{return e}},set(s,e){try{window.localStorage.setItem(`cam:${s}`,JSON.stringify(e))}catch{}}},h={ready:!1,geometry:null,scenarios:{},defaults:{},ranges:{},toggles:[],steps:600,points:[],notes:[],frame:null,params:{},running:!1,done:!1,speed:Z.get("speed",Nt),seed:de,scenario:"real",labParams:{},custom:!1,view:Z.get("view","sea"),tab:Z.get("tab","learn"),chapter:Math.min(ae.length-1,Z.get("chapter",0)),answers:Z.get("answers",{}),show:null,afterReady:null,note:null,narratorHtml:"",legendKey:"",dirty:!0,chartsDirty:!0,lastCharts:0,cursor:null,validation:null,checkView:"model"};(!Number.isInteger(h.speed)||h.speed<0||h.speed>3)&&(h.speed=Nt);ve.some(s=>s.key===h.view)||(h.view="sea");var _=new Oe(T("scene")),re=new He(T("charts")),K=null,Y=()=>h.points[h.points.length-1],ee=()=>Y()?Y().step:0,qt=s=>560-s*.1;function js(s){switch(s.type){case"ready":{h.ready=!0,h.geometry=s.geometry,h.scenarios=s.scenarios,h.defaults=s.defaults,h.ranges=s.ranges,h.toggles=s.toggles,h.steps=s.steps,h.seed=s.seed,h.scenario=s.scenario,h.points=[],h.notes=[],h.note=null,h.done=!1,h.running=!1,_.setGeometry(s.geometry),_.resize(),re.setRange(s.geometry),re.cursor=null,h.cursor=null,T("events").innerHTML="",ia();let e=h.afterReady;h.afterReady=null,e&&e();break}case"tick":{h.frame=s.frame;for(let e of s.points)h.points.push(e);for(let e of s.notes)h.notes.push(e),h.note={...e,at:performance.now()},aa(e);h.params=s.params,h.running=s.running,h.done=s.done,Y()&&_.setFrame(s.frame,Y(),h.points),h.dirty=!0,h.chartsDirty=!0;break}case"paused":h.running=!1,h.done=s.done,h.dirty=!0,h.show&&nt(),h.tab==="check"&&Te();break;case"error":_t(s.message);break;default:break}}function Q({seed:s=h.seed,scenario:e=h.scenario,params:t=h.labParams,then:a=null}={}){h.afterReady=a,h.custom=!1,h.labParams={...t},K.send({type:"init",seed:s,scenario:e,params:h.labParams})}function Gt(){if(h.done){Q({then:()=>Gt()});return}h.show=null,h.running=!0,K.send({type:"play",speed:h.speed}),h.dirty=!0}function Ns(){h.show=null,K.send({type:"pause"})}function Ut(s,e=3){s<=ee()||h.done||(h.running=!0,K.send({type:"runTo",step:s,speed:e}),h.dirty=!0)}function qs(s){let e=s.show;if(e.tab){be(e.tab),me(T("side"));return}e.view&&Yt(e.view);let t=e.steps[0].step,a=e.seed??de,o=e.scenario??"real",n=h.scenario===o&&h.seed===a&&!h.custom&&!Object.keys(h.labParams).length;h.show={steps:e.steps.slice(),chapter:s},!n||ee()>t?Q({seed:a,scenario:o,params:{},then:()=>nt()}):nt(),me(T("stage")),e.highlight&&Us(e.highlight)}function nt(){let s=h.show;if(!s)return;for(;s.steps.length&&s.steps[0].step<=ee();)s.steps.shift();let e=s.steps.shift();if(!e){h.show=null;let t=document.querySelector(`[data-look="${s.chapter.id}"]`);t&&(t.hidden=!1);return}h.running=!0,K.send({type:"runTo",step:e.step,speed:e.speed})}function Gs(){ye.matches||(h.fromLesson=!0,be("watch")),requestAnimationFrame(()=>me(T("charts")))}function Us(s){let e=document.querySelector(`.readout[data-explain="${s}"]`);e&&(e.classList.remove("flash"),e.offsetWidth,e.classList.add("flash"))}var it={play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>',pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/></svg>',again:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a7 7 0 1 1-6.6 4.7l1.9.7A5 5 0 1 0 12 7v3L7.5 6 12 2z"/></svg>',step:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5.5v13l9-6.5zM16 5h2.6v14H16z"/></svg>'};function _s(){T("speed").innerHTML=zs.map((e,t)=>`<option value="${t}">${e}</option>`).join(""),T("speed").value=String(h.speed),T("step").innerHTML=it.step,T("restart").innerHTML=it.again,T("play").addEventListener("click",()=>h.running?Ns():Gt()),T("step").addEventListener("click",()=>{h.show=null,K.send({type:"step",n:1})}),T("restart").addEventListener("click",()=>Q()),T("speed").addEventListener("change",e=>{h.speed=Number(e.target.value),Z.set("speed",h.speed),h.running&&!h.show&&K.send({type:"speed",speed:h.speed})});let s=T("timeline");s.addEventListener("click",e=>{let t=s.getBoundingClientRect(),a=Math.min(1,Math.max(0,(e.clientX-t.left)/t.width)),o=Math.round(a*h.steps);o>ee()?(h.show=null,Ut(o,3),xe(`Running to ${qt(o).toFixed(1)} million years ago`)):xe("You can only run forward. Restart to go back.")})}function Ks(){let s=h.running,e=T("play"),t=s?"pause":h.done?"again":"play";e.dataset.mode!==t&&(e.dataset.mode=t,e.innerHTML=`${it[t]}<span>${t==="pause"?"Pause":t==="again"?"Again":"Play"}</span>`,e.setAttribute("aria-label",t==="pause"?"Pause":t==="again"?"Run again from the start":"Play"));let a=Y();T("ma").textContent=(a?a.ma:560).toFixed(1),T("period").textContent=a&&a.ma<=538.8?"million years ago · Cambrian":"million years ago · Ediacaran";let o=ee()/h.steps;T("tl-fill").style.width=`${(o*100).toFixed(2)}%`,T("timeline").setAttribute("aria-valuenow",String(ee())),T("timeline").setAttribute("aria-valuetext",`${qt(ee()).toFixed(1)} million years ago`)}function xe(s){let e=T("toast");e.textContent=s,e.hidden=!1,clearTimeout(xe.timer),xe.timer=setTimeout(()=>e.hidden=!0,2600)}function _t(s){let e=T("error");e.textContent=`The simulation stopped: ${s.split(`
+`)[0]}`,e.hidden=!1,h.running=!1,h.dirty=!0}var Kt={sea:"The sea floor seen from the side, with the animals drawn from their traits",plans:"Spindles showing how many species of each body plan were alive through time",fossils:"The commonest species alive now, drawn as flattened fossils on a slab of mudstone"};function Ys(){T("views").innerHTML=ve.map(s=>`<button type="button" class="chip" data-view="${s.key}" aria-pressed="${s.key===h.view}">${L(s.label)}</button>`).join(""),T("views").addEventListener("click",s=>{let e=s.target.closest("[data-view]");e&&Yt(e.dataset.view)})}function Yt(s){h.view=s,Z.set("view",s),_.setView(s),T("scene-wrap").dataset.view=s;for(let e of document.querySelectorAll("#views [data-view]"))e.setAttribute("aria-pressed",String(e.dataset.view===s));T("scene").setAttribute("aria-label",Kt[s]),h.legendKey="",Vt(),requestAnimationFrame(Ne)}function Vt(){let s=Y();if(h.view==="fossils"){h.legendKey!=="fossils"&&(h.legendKey="fossils",T("legend").innerHTML='<span class="key faint">tap a fossil to see the animal it was</span>');return}let e=s?H.map((a,o)=>[a,s.indiv[o],o]).filter(a=>a[1]>0):[];e.sort((a,o)=>o[1]-a[1]);let t=`${h.view}:${e.map(a=>a[2]).join(",")}`;t!==h.legendKey&&(h.legendKey=t,T("legend").innerHTML=e.map(([a])=>`<span class="key"><i style="background:${a.color}"></i>${L(a.name.toLowerCase())}</span>`).join("")+`<span class="key faint">${h.view==="sea"?"drag to move along, tap an animal":"tap a name"}</span>`)}function Vs(){let s=T("scene"),e=null;s.addEventListener("pointerdown",a=>{e={x:a.clientX,y:a.clientY,moved:0,id:a.pointerId}}),s.addEventListener("pointermove",a=>{if(!e||e.id!==a.pointerId||h.view!=="sea")return;let o=a.clientX-e.x;e.moved+=Math.abs(o)+Math.abs(a.clientY-e.y),e.x=a.clientX,e.y=a.clientY,e.moved>6&&(s.setPointerCapture?.(a.pointerId),_.pan(o))});let t=a=>{if(!e||e.id!==a.pointerId)return;let o=e.moved<=6;if(e=null,!o||a.type==="pointercancel")return;let n=s.getBoundingClientRect(),i=_.hitAt(a.clientX-n.left,a.clientY-n.top);i&&(i.kind==="group"?pa(i.group):Zt(i.species,i.traits))};s.addEventListener("pointerup",t),s.addEventListener("pointercancel",t),T("zoom-in").addEventListener("click",()=>_.zoomBy(1.6)),T("zoom-out").addEventListener("click",()=>_.zoomBy(1/1.6))}function Xs(){T("readouts").innerHTML=at.map(s=>`<button type="button" class="readout" data-explain="${s.key}">
+      <span class="r-label">${L(s.short??s.label)}</span>
+      <span class="r-value" data-value="${s.key}">–</span>
+      <span class="r-unit" data-unit="${s.key}">${typeof s.unit=="string"?L(s.unit):""}</span></button>`).join("")}function Js(){let s=Y();if(s)for(let e of at){let t=document.querySelector(`[data-value="${e.key}"]`),a=e.value(s);if(t&&t.textContent!==a&&(t.textContent=a),typeof e.unit=="function"){let o=document.querySelector(`[data-unit="${e.key}"]`),n=e.unit(s);o&&o.textContent!==n&&(o.textContent=n)}}}var Xt={predator:"Hunters",burrow:"Digging",armour:"Armour",eye:"Eyes",group:"Body plan",world:"Sea floor",date:"Date",lab:"You"};function Qs(s){let e=Y(),t;e?h.note&&s-h.note.at<7e3&&ee()-h.note.step<30?t=`<span class="tag tag-${h.note.kind}">${Xt[h.note.kind]??""}</span> ${L(h.note.text)}`:t=Rt(e):t="Filling the sea…",t!==h.narratorHtml&&(h.narratorHtml=t,T("narrator").innerHTML=t)}function Zs(){let s=getComputedStyle(document.documentElement),e=t=>s.getPropertyValue(t).trim();return{ink:e("--ink"),ink2:e("--ink-2"),ink3:e("--ink-3"),line:e("--line"),plot:e("--plot"),ref:e("--ref"),species:e("--c-species"),armour:e("--c-armour"),eye:e("--c-eye"),hunter:e("--c-hunter"),burrow:e("--c-burrow"),mat:e("--c-mat"),oxygen:e("--c-oxygen")}}var Me=null;function ea(s){Me||(Me=Zs()),re.points=h.points,re.cursor=h.cursor,re.draw(Me),h.chartsDirty=!1,h.lastCharts=s,ta()}function ta(){let s=h.cursor!==null?re.pointAt(h.cursor):Y();if(!s)return;let e=(t,a)=>`<button type="button" class="num" data-explain="${t}" data-step="${s.step}">${a}</button>`;T("chart-caption").innerHTML=`<b>${h.cursor!==null?"At":"Now, at"} ${s.ma.toFixed(1)} million years ago:</b> ${e("species",`${G(s.species)} species`)} in ${s.nGroups} body plans · disparity ${e("disparity",ie(s.disparity,2))} · skeletons ${e("armour",R(s.armour))} · eyes ${e("eyes",R(s.eyes))} · hunters ${e("hunters",R(s.carn))} · biggest hunter ${e("bigPred",s.bigPred>0?se(s.bigPred):"none")} · mats ${e("mat",R(s.mat))}`}function sa(){let s=T("charts"),e=t=>{let a=s.getBoundingClientRect(),o=re.stepAt(t.clientX-a.left);h.cursor=h.points.length?Math.min(o,ee()):null,h.chartsDirty=!0};s.addEventListener("pointermove",t=>{t.pointerType==="mouse"&&e(t)}),s.addEventListener("pointerdown",e),s.addEventListener("pointerleave",t=>{t.pointerType==="mouse"&&(h.cursor=null,h.chartsDirty=!0)})}function aa(s){let e=document.createElement("li");e.dataset.step=String(s.step),e.innerHTML=`<span class="ev-age">${s.ma.toFixed(1)}</span><span class="tag tag-${s.kind}">${Xt[s.kind]??""}</span><span class="ev-text">${L(s.text)}</span>`,T("events").prepend(e)}function be(s){s==="watch"&&ye.matches&&(s="learn"),h.tab=s,Z.set("tab",s);for(let e of document.querySelectorAll("[data-tab]")){let t=e.dataset.tab===s;e.setAttribute("aria-selected",String(t)),e.tabIndex=t?0:-1}for(let e of document.querySelectorAll(".panel"))e.classList.toggle("active",e.dataset.panel===s||e.dataset.panel==="watch"&&ye.matches);T("back-to-lesson").hidden=!(h.fromLesson&&s==="watch"),(s==="watch"||ye.matches)&&requestAnimationFrame(Ne),s==="check"&&Te()}function Ot(){let s=T("panel-watch");ye.matches?T("main-col").appendChild(s):T("side").insertBefore(s,T("panel-learn")),be(h.tab),Ne()}function Ne(){_.resize(),re.resize(),h.chartsDirty=!0}function rt(){let s=ae[h.chapter],e=h.chapter,t=h.answers[s.id],a=s.predict,o=a?a.options.map((i,r)=>`<button type="button" class="option${t===void 0?"":i.right?" right":r===t?" wrong":" dim"}" data-option="${r}" ${t!==void 0?'aria-disabled="true"':""}>${L(i.text)}</button>`).join(""):"",n=t===void 0||!a?"":a.options[t]?.right?"Right.":"Not quite.";T("panel-learn").innerHTML=`
+    <div class="chapter-nav">
+      <span class="kicker">Chapter ${e+1} of ${ae.length}</span>
+      <div class="dots">${ae.map((i,r)=>`<button type="button" class="dot${r===e?" on":""}${h.answers[i.id]!==void 0?" done":""}" data-chapter="${r}" aria-label="Chapter ${r+1}: ${L(i.title)}"></button>`).join("")}</div>
+    </div>
+    <article class="chapter">
+      <h2>${L(s.title)}</h2>
+      ${s.body.map(i=>`<p>${De(i)}</p>`).join("")}
+      ${a?`<div class="predict">
+        <p class="kicker">Predict first</p>
+        <p class="predict-q">${L(a.q)}</p>
+        <div class="options">${o}</div>
+        <p class="predict-a" ${t===void 0?"hidden":""}><b>${n}</b> ${De(a.explain)}</p>
+      </div>`:""}
+      <div class="show">
+        <button type="button" class="btn primary" data-show="${e}">${s.show.tab==="lab"?"Open the Lab":s.show.tab==="check"?"Open Validation":"Show me"}</button>
+        ${s.look?`<p class="look" data-look="${s.id}" hidden><b>Look:</b> ${De(s.look)}</p>`:""}
+      </div>
+    </article>
+    <div class="pager">
+      <button type="button" class="btn ghost" data-chapter="${e-1}" ${e===0?"disabled":""}>← Previous</button>
+      <button type="button" class="btn ghost" data-chapter="${e+1}" ${e===ae.length-1?"disabled":""}>Next →</button>
+    </div>
+    <details class="glossary">
+      <summary>Glossary</summary>
+      <dl>${Object.entries(st).sort((i,r)=>i[1][0].localeCompare(r[1][0])).map(([i,[r,g]])=>`<dt id="term-${i.replace(/\s+/g,"-")}">${L(r)}</dt><dd>${L(g)}</dd>`).join("")}</dl>
+    </details>`}function oa(){T("panel-learn").addEventListener("click",s=>{let e=s.target.closest("[data-chapter]");if(e&&!e.disabled){let o=Number(e.dataset.chapter);o>=0&&o<ae.length&&(h.chapter=o,Z.set("chapter",o),rt(),me(T("panel-learn")));return}let t=s.target.closest("[data-option]");if(t){let o=ae[h.chapter];if(h.answers[o.id]!==void 0)return;h.answers[o.id]=Number(t.dataset.option),Z.set("answers",h.answers),rt();return}let a=s.target.closest("[data-show]");a&&qs(ae[Number(a.dataset.show)])})}var Ht={predators:["Predators","animals can evolve to eat animals"],eyes:["Eyes","animals can evolve eyes"],burrowing:["Digging","animals can evolve to burrow into the mud"],armour:["Skeletons","animals can evolve mineral skeletons"]},na=[{kind:"predator",label:"Release giant hunters",note:"Eight sharp-eyed swimming predators, 50 cm long, join the run."},{kind:"extinction",label:"Mass extinction",note:"Seven in ten animals die at random."},{kind:"blind",label:"Take away all eyes",note:"Every animal goes blind; eyes can evolve again."}],Jt=(s,e)=>s.unit==="pct"?`${Math.round(e*100)} %`:`× ${e.toFixed(1)}`,Qt=!1;function ia(){let s={...h.defaults,...h.scenarios[h.scenario]?.params??{},...h.labParams},e=h.seed!==de;T("panel-lab").innerHTML=`
+    <h2>Lab</h2>
+    <p class="lede">Change the world, then run history again. The same settings and seed always give the same run.</p>
+    <h3>Start from</h3>
+    <div class="scenarios" role="radiogroup">
+      ${Object.entries(h.scenarios).map(([t,a])=>`<button type="button" class="scenario" role="radio" aria-checked="${t===h.scenario}" data-scenario="${t}">
+            <b>${L(a.label)}</b><span>${L(a.blurb)}</span></button>`).join("")}
+    </div>
+    <h3>Chance</h3>
+    <p class="hint">Which mutations happen, who meets whom and who gets eaten all come from a seed. Try a few: this is replaying the tape.</p>
+    <div class="seed-row">
+      <button type="button" class="chip" data-seedmode="default" aria-pressed="${!e}">The default run</button>
+      <button type="button" class="chip" data-seedmode="random" aria-pressed="${e}">Another seed</button>
+      <label class="seed-field" ${e?"":"hidden"}><span>Seed</span><input id="seed" type="text" value="${e?L(h.seed):""}" maxlength="16" autocomplete="off"></label>
+      <button type="button" class="btn ghost small" data-newseed ${e?"":"hidden"}>New seed</button>
+    </div>
+    <h3>Change the rules</h3>
+    <p class="hint">Changes work from now on. Press Restart to run the whole history with them.</p>
+    <div class="sliders">
+      ${Object.entries(h.ranges).map(([t,a])=>`<label class="slider"><span class="s-label">${L(a.label)}</span><output data-out="${t}">${L(Jt(a,s[t]))}</output>
+          <input type="range" id="lab-${t}" data-param="${t}" min="${a.min}" max="${a.max}" step="${a.step}" value="${s[t]}"></label>`).join("")}
+    </div>
+    <div class="toggles">
+      ${h.toggles.map(t=>`<label class="toggle"><input type="checkbox" id="lab-${t}" data-param="${t}" ${s[t]?"checked":""}><span><b>${L(Ht[t][0])}</b> ${L(Ht[t][1])}</span></label>`).join("")}
+    </div>
+    <div class="lab-actions">
+      <button type="button" class="btn primary" data-labrestart>Restart with these settings</button>
+      <button type="button" class="btn ghost" data-labreset>Back to the defaults</button>
+    </div>
+    <h3>Do something now</h3>
+    <div class="injects">
+      ${na.map(t=>`<button type="button" class="inject" data-inject="${t.kind}"><b>${L(t.label)}</b><span>${L(t.note)}</span></button>`).join("")}
+    </div>`,Qt||ra()}var zt=["marrella","wiwaxia","pikaia","ottoia","aysheaia","sidneyia","yohoia","waptia","canadaspis","leanchoilia","odaraia","helmetia"],Dt=()=>Math.random()<.5?zt[Math.floor(Math.random()*zt.length)]:String(Math.floor(1e3+Math.random()*9e3));function ra(){Qt=!0;let s=T("panel-lab");s.addEventListener("click",e=>{let t=e.target.closest("[data-scenario]");if(t){h.show=null,Q({scenario:t.dataset.scenario,params:{},then:()=>xe(`${h.scenarios[t.dataset.scenario].label}: press Play`)});return}let a=e.target.closest("[data-seedmode]");if(a){Q({seed:a.dataset.seedmode==="default"?de:Dt()});return}if(e.target.closest("[data-newseed]")){Q({seed:Dt()});return}if(e.target.closest("[data-labrestart]")){Q();return}if(e.target.closest("[data-labreset]")){Q({params:{}});return}let o=e.target.closest("[data-inject]");o&&(K.send({type:"inject",kind:o.dataset.inject}),h.custom=!0,me(T("stage")))}),s.addEventListener("input",e=>{let t=e.target;if(!t.dataset.param||t.type!=="range")return;let a=h.ranges[t.dataset.param];s.querySelector(`[data-out="${t.dataset.param}"]`).textContent=Jt(a,Number(t.value))}),s.addEventListener("change",e=>{let t=e.target;if(t.id==="seed"){let n=t.value.trim();n&&Q({seed:n});return}let a=t.dataset.param;if(!a)return;let o=t.type==="checkbox"?t.checked:Number(t.value);h.labParams[a]=o,K.send({type:"set",patch:{[a]:o}}),h.custom=!0})}var ot={emerges:["Emerges","Nothing in the model aims at this number."],tuned:["Tuned","Constants were chosen so this lands near the real value."],"built in":["Built in","A rule of the model makes this happen; the check shows it plays out."]},jt=s=>`how how-${s.split(" ")[0]}`;function la(){let s={};for(let e of h.notes)e.key&&s[e.key]===void 0&&(s[e.key]=e.ma);return{history:h.points,first:s,burgess:null}}function Te(){let s=h.done&&h.points.length>h.steps,e=h.checkView==="run"&&s,t=e?Qe(la()):h.validation??Hs,a=!h.validation&&!e,o=t?t.checks.map(n=>`<li class="check ${n.pass?"pass":"miss"}">
+          <div class="check-head"><span class="badge">${n.pass?"Match":"Miss"}</span><span class="check-what">${L(n.title)}</span></div>
+          <dl><dt>Model</dt><dd>${L(n.model)}</dd><dt>Real</dt><dd>${L(n.real)}</dd></dl>
+          <p class="source"><span class="${jt(n.how)}" title="${L(ot[n.how][1])}">${ot[n.how][0]}</span> ${L(n.source)}</p></li>`).join(""):'<li class="check">Press the button to run the check.</li>';T("panel-check").innerHTML=`
+    <h2>Validation</h2>
+    <p class="lede">The default run from 560 to 500 million years ago, plus three what-if runs, set beside the fossil record. Each pass mark is written down with its source, and a miss is shown, not hidden. Where a mark or the model was tuned, the check says so.</p>
+    <div class="check-tabs" role="radiogroup">
+      <button type="button" class="chip" data-checkview="model" aria-pressed="${!e}">The default run</button>
+      <button type="button" class="chip" data-checkview="run" aria-pressed="${e}" ${s?"":"disabled"}>Your run${s?"":" (finish it first)"}</button>
+    </div>
+    ${t?`<p class="score"><b>${t.passed}</b> of ${t.total} checks match the fossils</p>`:""}
+    <div class="check-run" ${e?"hidden":""}>
+      <span class="hint">${a?"Computed when this page was built.":"Computed just now, in your browser."}</span>
+      <button type="button" class="btn ghost small" data-validate>Run it again here</button>
+      <span class="progress" id="check-progress" hidden><span></span></span>
+    </div>
+    ${e?'<p class="hint">Your run is scored on the checks that need only one run; the what-if checks need their own runs.</p>':""}
+    <dl class="how-key">${Object.entries(ot).map(([n,[i,r]])=>`<dt><span class="${jt(n)}">${i}</span></dt><dd>${L(r)}</dd>`).join("")}</dl>
+    <ol class="checks">${o}</ol>
+    <h3>Other seeds</h3>
+    <p>The default seed, opabinia, was picked from many because it matches all of these checks. Other seeds match fewer, 8 of 11 on average over 20 other seeds. In all 20, hunters come before skeletons, body plans spread out at least twice as far, and the world without predators stays plainer. But the dates move by millions of years, skeletons come before sharp eyes in only 11 of 20, arthropods are the richest group at Burgess Shale time in 10, and the biggest hunter then reaches 8 cm in only 5. The README in the code lists every seed.</p>
+    <h3>About the model</h3>
+    ${Bt.map(n=>`<p>${L(n)}</p>`).join("")}`}function ha(){T("panel-check").addEventListener("click",async s=>{let e=s.target.closest("[data-checkview]");if(e&&!e.disabled){h.checkView=e.dataset.checkview,Te();return}let t=s.target.closest("[data-validate]");if(t&&!t.disabled){t.disabled=!0,t.textContent="Running…",T("check-progress").hidden=!1;try{h.validation=await K.validate(a=>{let o=T("check-progress");o&&(o.firstElementChild.style.width=`${Math.round(100*a.step/a.total)}%`)})}catch(a){_t(String(a.message??a))}Te()}})}function Se(s){T("sheet-body").innerHTML=s,T("sheet").hidden=!1,T("sheet-backdrop").hidden=!1,T("sheet-close").focus({preventScroll:!0})}function je(){T("sheet").hidden=!0,T("sheet-backdrop").hidden=!0}function ca(s,e){let t=e!==void 0?h.points.find(o=>o.step===e)??Y():Y();if(!t)return;let a=It(s,t);a&&Se(`
+    <p class="kicker">${e!==void 0?"At":"Now, at"} ${t.ma.toFixed(1)} million years ago</p>
+    <h2>${L(a.title)}</h2>
+    <p class="sheet-value">${L(a.value)}</p>
+    ${a.html.filter(Boolean).map(o=>`<p>${o}</p>`).join("")}
+    ${a.chart?`<button type="button" class="btn ghost small" data-gochart="${a.chart}">See it on the charts</button>`:""}`)}function da(s){let e=st[s];e&&Se(`<p class="kicker">Glossary</p><h2>${L(e[0])}</h2><p>${L(e[1])}</p>`)}var ma=[[1,"Moving","from fixed to the floor to always on the move"],[2,"Segments","a body of repeated parts"],[3,"Legs","for walking and raking the mud"],[4,"Swimming","flaps along the sides"],[5,"Eyes","from eye spots to eyes with lenses"],[6,"Skeleton","shells, plates or a tube"],[7,"Spines","harder to swallow"],[8,"Jaws","a wider mouth that breaks shells"],[9,"Digging","into the mud"],[10,"Hunting","how much of its food is other animals"],[11,"Filtering","straining plankton from the water"]];function Zt(s,e){let t=e??s.mean,a=H[s.group],o=ke(t[0]),n=s.born!==void 0?`It appeared ${(560-s.born*.1).toFixed(1)} million years ago`:"";Se(`
+    <p class="kicker">${e?"One animal of the species":"A species, as its average animal"}</p>
+    <h2><i>${L(s.name)}</i></h2>
+    <p class="sheet-value">${L(a.one[0].toUpperCase()+a.one.slice(1))}, like ${L(a.like)} · ${L(se(o))} long</p>
+    <canvas class="portrait" id="portrait" width="320" height="150" role="img" aria-label="A drawing of ${L(s.name)}"></canvas>
+    <p>${s.count?`${G(s.count)} animals of this species are alive now. `:""}${n?`${n}.`:""}</p>
+    <ul class="traits">${ma.map(([m,c,l])=>`<li><span class="t-name">${c}</span><span class="t-bar"><i style="width:${Math.round(t[m]*100)}%"></i></span><span class="t-about">${L(l)}</span></li>`).join("")}</ul>`);let i=T("portrait"),r=Math.min(2,window.devicePixelRatio||1),g=i.clientWidth||320,f=i.clientHeight||150;i.width=Math.round(g*r),i.height=Math.round(f*r);let w=i.getContext("2d");w.setTransform(r,0,0,r,0,0);let b=t[1]<.2,p=b?f*.62:Math.min(g*.6,f*1.6);ge(w,t,g/2,b?f*.92:f*.5,p,1,1.2,tt(s.id,s.group),"live")}var ua={frond:"Fixed to the floor, not hunting and without a skeleton.",tube:"Fixed to the floor, inside a mineral tube.",polyp:"Fixed to the floor, catching animals that pass.",soft:"Moving over the floor without legs, flaps, a skeleton or spines.",burrower:"Moving, without legs or flaps, and living mostly in the mud.",shelled:"Crawling under a mineral shell.",spiny:"Crawling, covered in spines and plates.",lobopod:"Walking on legs, with a soft, barely segmented body.",arthropod:"Walking on legs, with a segmented body.",swimmer:"Swimming with flaps, not a big hunter.",radiodont:"A swimming hunter with jaws and grasping arms."};function pa(s){let e=H[s],t=Y(),a=t?t.groups[s]:0,o=(h.frame?.fauna??[]).filter(n=>n.group===s).slice(0,4);Se(`
+    <p class="kicker">Body plan</p>
+    <h2>${L(e.name)}</h2>
+    <p class="sheet-value">${a?`${G(a)} species alive now`:"None alive now"}</p>
+    <p>Real animals with this kind of body: ${L(e.like)}.</p>
+    <p><b>How the model sorts a species here:</b> ${L(ua[e.key])}</p>
+    ${o.length?`<p>The commonest now: ${o.map(n=>`<button type="button" class="term" data-species="${n.id}"><i>${L(n.name)}</i></button>`).join(", ")}.</p>`:""}`)}function fa(){document.addEventListener("click",s=>{let e=s.target.closest(".term[data-term]");if(e){da(e.dataset.term);return}let t=s.target.closest("[data-species]");if(t){let i=(h.frame?.fauna??[]).find(r=>r.id===Number(t.dataset.species));i&&Zt(i);return}let a=s.target.closest("[data-explain]");if(a){ca(a.dataset.explain,a.dataset.step!==void 0?Number(a.dataset.step):void 0);return}if(s.target.closest("[data-gochart]")){je(),Gs();return}let n=s.target.closest("#events li");n&&(h.cursor=Number(n.dataset.step),h.chartsDirty=!0,me(T("charts"),"center"))}),T("sheet-close").addEventListener("click",je),T("sheet-backdrop").addEventListener("click",je),document.addEventListener("keydown",s=>{s.key==="Escape"&&!T("sheet").hidden&&je()}),T("scene-help").addEventListener("click",()=>{let s=ve.find(e=>e.key===h.view)??ve[0];Se(`<p class="kicker">The picture: ${L(s.label)}</p><h2>How to read it</h2>${Ft[s.key].map(e=>`<p>${L(e)}</p>`).join("")}`)}),T("tabs").addEventListener("click",s=>{let e=s.target.closest("[data-tab]");e&&(e.dataset.tab!=="watch"&&(h.fromLesson=!1),be(e.dataset.tab))}),T("tabs").addEventListener("keydown",s=>{if(s.key!=="ArrowRight"&&s.key!=="ArrowLeft")return;let e=[...document.querySelectorAll("[data-tab]")].filter(o=>o.offsetParent!==null),t=e.findIndex(o=>o.dataset.tab===h.tab),a=e[(t+(s.key==="ArrowRight"?1:e.length-1))%e.length];be(a.dataset.tab),a.focus()}),T("back-to-lesson").addEventListener("click",()=>{h.fromLesson=!1,be("learn"),me(T("panel-learn"))})}function es(s){_.draw(s),h.dirty&&(h.dirty=!1,Ks(),Js(),Vt()),Qs(s),h.chartsDirty&&(s-h.lastCharts>150||!h.running)&&ea(s),requestAnimationFrame(es)}function ga(){_s(),Ys(),Xs(),rt(),oa(),ha(),sa(),Vs(),fa(),Te(),_.setView(h.view),T("scene-wrap").dataset.view=h.view,T("scene").setAttribute("aria-label",Kt[h.view]),Ot(),ye.addEventListener?.("change",Ot);let s=T("bar"),e=()=>document.documentElement.style.setProperty("--bar-h",`${s.offsetHeight}px`);new ResizeObserver(e).observe(s),e();let t=new ResizeObserver(()=>Ne());t.observe(T("scene")),t.observe(T("charts")),window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>{Me=null,h.chartsDirty=!0}),new MutationObserver(()=>{Me=null,h.chartsDirty=!0}).observe(document.documentElement,{attributes:!0,attributeFilter:["data-theme","class"]}),K=$t(js),window.__cam={state:h,host:K,scene:_},ya(),requestAnimationFrame(es)}function ya(){let s=window.claude?.hot,e=!1,t=a=>{if(e)return;e=!0;let o=a&&typeof a=="object"?a:{},n=Number(o.step);Q({seed:typeof o.seed=="string"&&o.seed?o.seed:de,scenario:typeof o.scenario=="string"?o.scenario:"real",params:o.params&&typeof o.params=="object"?o.params:{},then:Number.isFinite(n)&&n>0?()=>Ut(n):null})};try{s?.snapshot?.(()=>({seed:h.seed,scenario:h.scenario,params:{...h.labParams},step:ee()})),s?.ready?(s.ready(t),setTimeout(()=>t({}),1500)):t(s?.data??{})}catch{t({})}}ga();})();
+</script>
