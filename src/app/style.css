@@ -5,13 +5,13 @@
 
 :root {
   color-scheme: light;
-  --bg: #f4f1ea;
-  --paper: #fdfbf6;
-  --surface: #e9e4d8;
+  --bg: #edf0ec;
+  --paper: #f9fbf8;
+  --surface: #e0e6e0;
   --ink: #1d2321;
   --ink-2: #45504c;
   --ink-3: #66706b;
-  --line: #ddd6c8;
+  --line: #d0d8d1;
   --accent: #0f6f73;
   --accent-ink: #ffffff;
   --c-species: #0f7f80;
@@ -25,7 +25,7 @@
   --good-bg: rgba(28, 122, 76, 0.12);
   --bad: #b2362c;
   --bad-bg: rgba(178, 54, 44, 0.1);
-  --plot: #fdfbf6;
+  --plot: #f9fbf8;
   --ref: rgba(29, 35, 33, 0.08);
   --focus: #0f6f73;
   --field: #0f3a4d;
