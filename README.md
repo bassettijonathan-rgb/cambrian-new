@@ -9,7 +9,7 @@ floor holds arthropods, lobopods, shelled and spiny crawlers, burrowing worms
 and swimming hunters. A run follows up to 3,000 animals on a 12 m strip of
 sea floor, from 560 to 500 million years ago, in steps of 100,000 years.
 
-**Play:** _link added when the page is published_
+**Play:** https://claude.ai/artifact/6QUssochG4GsDFzxCRDj1v
 
 It is plain JavaScript with Canvas and a Web Worker, no server, and runs as a
 single page at phone width.
