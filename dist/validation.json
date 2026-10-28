@@ -1,0 +1,383 @@
+{
+  "checks": [
+    {
+      "id": "huntersFirst",
+      "title": "Hunters come before armour",
+      "model": "mobile predators by 558 Ma; skeletons spread at 532 Ma",
+      "real": "bore holes in Cloudina tubes about 550 Ma, before the small shelly fossils from 538 Ma",
+      "how": "emerges",
+      "pass": true,
+      "source": "Bengtson & Zhao 1992; Hua et al. 2003"
+    },
+    {
+      "id": "armourFirst",
+      "title": "Skeletons come before sharp eyes",
+      "model": "skeletons spread at 532 Ma; eyes with lenses at 522 Ma",
+      "real": "skeletons from 550 Ma (Cloudina) and 538 Ma (small shelly fossils); the oldest eyes about 530 to 521 Ma",
+      "how": "emerges",
+      "pass": true,
+      "source": "Kouchinsky et al. 2012; Schoenemann et al. 2017"
+    },
+    {
+      "id": "skelTime",
+      "title": "When skeletons spread",
+      "model": "532 Ma",
+      "real": "small shelly fossils diversify from 538 to about 525 Ma (accept 545 to 525)",
+      "how": "tuned",
+      "pass": true,
+      "source": "Kouchinsky et al. 2012; Maloof et al. 2010"
+    },
+    {
+      "id": "eyeTime",
+      "title": "When eyes with lenses appear",
+      "model": "522 Ma",
+      "real": "compound eyes of trilobites and radiodonts, about 530 to 515 Ma (accept 535 to 512)",
+      "how": "emerges",
+      "pass": true,
+      "source": "Schoenemann et al. 2017; Paterson et al. 2011"
+    },
+    {
+      "id": "arthropods",
+      "title": "At Burgess Shale time, arthropods are the richest group",
+      "model": "32 % of species are arthropods; the richest group is arthropods",
+      "real": "arthropods are the largest group in the Burgess Shale, about 37 % of its species",
+      "how": "tuned",
+      "pass": true,
+      "source": "Conway Morris 1986; Caron & Jackson 2008"
+    },
+    {
+      "id": "disparity",
+      "title": "Body plans spread out fast",
+      "model": "disparity at 508 Ma is 4.7 times that at 550 Ma",
+      "real": "by the Burgess Shale, Cambrian arthropods alone were as varied in form as living ones (accept 2 times or more)",
+      "how": "emerges",
+      "pass": true,
+      "source": "Briggs, Fortey & Wills 1992; Erwin et al. 2011"
+    },
+    {
+      "id": "mats",
+      "title": "Microbial mats give way to churned mud",
+      "model": "mats cover 90 % of the floor at 550 Ma and 55 % at 508 Ma",
+      "real": "mats cover Ediacaran sea floors; burrowers break them up through the Cambrian (accept at least 70 % before, at most 60 % after)",
+      "how": "emerges",
+      "pass": true,
+      "source": "Seilacher 1999; Bottjer, Hagadorn & Dornbos 2000"
+    },
+    {
+      "id": "topPredator",
+      "title": "The biggest hunter at Burgess Shale time",
+      "model": "11 cm",
+      "real": "Anomalocaris canadensis grew to about 30 to 40 cm; most Cambrian hunters were far smaller (accept 8 to 100 cm)",
+      "how": "tuned",
+      "pass": true,
+      "source": "Daley & Edgecombe 2014; Lerosey-Aubril & Pates 2021"
+    },
+    {
+      "id": "noPredators",
+      "title": "Without predators, no explosion",
+      "model": "disparity 0.44 against 0.83; skeletons on 0 % of animals, eyes on 0 %",
+      "real": "the arms-race view: predation drove armour, eyes and the spread of body plans (accept disparity below 60 % of the default, armour and eyes under 10 %)",
+      "how": "emerges",
+      "pass": true,
+      "source": "Stanley 1973; Vermeij 1989; Bengtson 2002"
+    },
+    {
+      "id": "lowOxygen",
+      "title": "Low oxygen holds the explosion back",
+      "model": "at 525 Ma: disparity 0.23 against 0.53, mats 88 % against 56 %",
+      "real": "active hunting and deep burrowing need more oxygen than Ediacaran seas held (accept disparity lower and mats higher than the default)",
+      "how": "built in",
+      "pass": true,
+      "source": "Sperling et al. 2013; Knoll & Carroll 1999"
+    },
+    {
+      "id": "eyesFirst",
+      "title": "If eyes had come first, the fossil order would be reversed",
+      "model": "with cheap early eyes: eyes with lenses at 535 Ma, skeletons at 534 Ma",
+      "real": "the record shows skeletons before eyes, so eyes alone did not start the arms race (Parker’s light switch, as first dated)",
+      "how": "emerges",
+      "pass": true,
+      "source": "Parker 2003; Schoenemann et al. 2017"
+    }
+  ],
+  "passed": 11,
+  "total": 11,
+  "burgess": [
+    {
+      "id": 6888,
+      "name": "Ikarachia",
+      "group": 1,
+      "count": 243,
+      "born": 362,
+      "parent": 5889,
+      "maxL": 97.25242158824722,
+      "mean": [
+        0.987,
+        0.063,
+        0.226,
+        0.086,
+        0.011,
+        0.018,
+        0.982,
+        0.267,
+        0.038,
+        0.056,
+        0.008,
+        0.984
+      ]
+    },
+    {
+      "id": 7762,
+      "name": "Selkinipod",
+      "group": 8,
+      "count": 168,
+      "born": 404,
+      "parent": 5857,
+      "maxL": 8.033498202952904,
+      "mean": [
+        0.02,
+        0.853,
+        0.468,
+        0.963,
+        0.039,
+        0.028,
+        0.61,
+        0.048,
+        0.082,
+        0.158,
+        0.02,
+        0.018
+      ]
+    },
+    {
+      "id": 8790,
+      "name": "Opacacystis",
+      "group": 7,
+      "count": 151,
+      "born": 459,
+      "parent": 7313,
+      "maxL": 6.80999986584332,
+      "mean": [
+        0.021,
+        0.776,
+        0.177,
+        0.959,
+        0.033,
+        0.103,
+        0.693,
+        0.06,
+        0.028,
+        0.049,
+        0.011,
+        0.014
+      ]
+    },
+    {
+      "id": 8206,
+      "name": "Sidgeops",
+      "group": 7,
+      "count": 93,
+      "born": 425,
+      "parent": 7313,
+      "maxL": 6.958005799801196,
+      "mean": [
+        0.011,
+        0.307,
+        0.38,
+        0.92,
+        0.121,
+        0.02,
+        0.707,
+        0.055,
+        0.086,
+        0.084,
+        0.009,
+        0.024
+      ]
+    },
+    {
+      "id": 8066,
+      "name": "Opasichoa",
+      "group": 8,
+      "count": 84,
+      "born": 418,
+      "parent": 5857,
+      "maxL": 6.449222983765656,
+      "mean": [
+        0.014,
+        0.737,
+        0.488,
+        0.971,
+        0.025,
+        0.013,
+        0.622,
+        0.078,
+        0.184,
+        0.325,
+        0.006,
+        0.02
+      ]
+    },
+    {
+      "id": 5396,
+      "name": "Sidnilus",
+      "group": 4,
+      "count": 73,
+      "born": 296,
+      "parent": 1434,
+      "maxL": 7.751978777132264,
+      "mean": [
+        0.038,
+        0.295,
+        0.026,
+        0.132,
+        0.021,
+        0.014,
+        0.24,
+        0.08,
+        0.137,
+        0.606,
+        0.01,
+        0.007
+      ]
+    },
+    {
+      "id": 7760,
+      "name": "Helmecarella",
+      "group": 8,
+      "count": 71,
+      "born": 404,
+      "parent": 5857,
+      "maxL": 6.8110915245201875,
+      "mean": [
+        0.008,
+        0.775,
+        0.523,
+        0.96,
+        0.054,
+        0.053,
+        0.685,
+        0.076,
+        0.053,
+        0.214,
+        0.008,
+        0.012
+      ]
+    },
+    {
+      "id": 6726,
+      "name": "Ottoitoxia",
+      "group": 1,
+      "count": 66,
+      "born": 355,
+      "parent": 5889,
+      "maxL": 85.44779066815208,
+      "mean": [
+        0.96,
+        0.075,
+        0.163,
+        0.109,
+        0.008,
+        0.055,
+        0.988,
+        0.17,
+        0.048,
+        0.105,
+        0.022,
+        0.99
+      ]
+    },
+    {
+      "id": 8920,
+      "name": "Hairuchoa",
+      "group": 7,
+      "count": 53,
+      "born": 464,
+      "parent": 8018,
+      "maxL": 114.65624323186047,
+      "mean": [
+        1.242,
+        0.404,
+        0.113,
+        0.41,
+        0.074,
+        0.591,
+        0.047,
+        0.185,
+        0.99,
+        0.787,
+        0.779,
+        0.041
+      ]
+    },
+    {
+      "id": 9656,
+      "name": "Chengjia",
+      "group": 4,
+      "count": 49,
+      "born": 501,
+      "parent": 9118,
+      "maxL": 32.20871578378365,
+      "mean": [
+        0.477,
+        0.379,
+        0.164,
+        0.379,
+        0.113,
+        0.941,
+        0.375,
+        0.188,
+        0.979,
+        0.669,
+        0.991,
+        0.06
+      ]
+    },
+    {
+      "id": 9669,
+      "name": "Sidtogenia",
+      "group": 8,
+      "count": 49,
+      "born": 502,
+      "parent": 7762,
+      "maxL": 6.456613311912122,
+      "mean": [
+        0.014,
+        0.857,
+        0.428,
+        0.987,
+        0.007,
+        0.088,
+        0.601,
+        0.015,
+        0.172,
+        0.74,
+        0.007,
+        0.017
+      ]
+    },
+    {
+      "id": 8436,
+      "name": "Ikachoa",
+      "group": 8,
+      "count": 48,
+      "born": 440,
+      "parent": 6987,
+      "maxL": 6.7988826775850795,
+      "mean": [
+        0.03,
+        0.887,
+        0.945,
+        0.768,
+        0.036,
+        0.024,
+        0.581,
+        0.018,
+        0.023,
+        0.328,
+        0.02,
+        0.086
+      ]
+    }
+  ]
+}
